@@ -54,13 +54,14 @@ Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 
 - `PROGRESS.md` - Notes on how far the active feature got. Update with every commit.
 - `DECISIONS.md` - Project-wide decisions with their reasons and rejected alternatives. Open entries that bear on your task.
-- `docs/features.json`, `scripts/feature.sh` - Every feature's behavior, verification, state, and evidence; the script (`list`, `start`, `verify`, `block`) is the only way to change a state.
+- `docs/features.json`, `scripts/feature.sh` - Every feature's behavior, verification, state, and evidence; the script (`list`, `start`, `verify`, `block`, `remaining`) is the only way to change a state.
 - `docs/initialization.md` - The one-time setup of a new project. Read when given a project idea.
 - `docs/conventions.md`, `docs/architecture.json` - Architecture and code rules, and their machine-checked part: components, integration test paths, and dependency rules. Read before writing code.
 - `docs/testing.md` - How tests are written and run. Read before writing or changing tests.
 - `docs/security.md` - Secrets, credentials, and untrusted input. Read before touching any of them.
 - `docs/tools.md`, `docs/documentation.md` - Which tools agents use, and where each rule or piece of knowledge goes and how docs are structured. Read before adding a tool or script, a rule, or any doc.
 - `docs/observability.md` - Logs, health checks, run evidence, and the verification report. Read before diagnosing a failure, or adding code that runs.
+- `docs/loops.md`, `.claude/agents/evaluator.md` - Running the agent in goal, scheduled, and event-driven loops, and the independent evaluator that judges features. Read before setting up a loop or judging a feature.
 - `docs/harness-audit.md`, `docs/cleanup.md` - Fixing, auditing, and measuring the harness, and the per-session and weekly cleanup. Read when a task fails, before ending a session, when asked to audit or clean up, or when results get worse.
 - `scripts/setup.sh`, `scripts/check-ready.sh` - Build the environment from a fresh clone, and check fast that it still matches. Both safe to re-run.
 - `scripts/restore-state.sh`, `scripts/end-session.sh`, `scripts/scan.sh`, `.claude/settings.json` - Restore state at session start (the Claude Code hook runs it, also after compaction), check for a clean handoff at session end, and report weekly drift.
@@ -84,6 +85,6 @@ A feature is done when its end-to-end verification passes, not when its code is 
 3. End to end: every `passing` feature's flow, re-run.
 
 - [ ] New or changed behaviour has a test, a change across components has an integration or end-to-end test that crosses them, and `scripts/feature.sh verify <id>` (levels 0 to 2, then the feature's end-to-end flow) marked it `passing`.
-- [ ] You ran the user flow yourself on the running project (computer use or a browser for a UI; the real CLI or HTTP calls otherwise), and recorded evidence for each requirement in the verification report (`docs/observability.md`).
+- [ ] An independent evaluator, not the agent that wrote the code (the `evaluator` subagent, a fresh session, or another model), walked the user flow on the running project, and its verification report (`docs/observability.md`) shows evidence for every requirement.
 - [ ] New knowledge is written where `docs/documentation.md` routes it, and the unit is committed with a message that says why.
 - [ ] Before the session ends, `scripts/end-session.sh` passes: scratch files gone, nothing uncommitted, state current, every level green.

@@ -6,6 +6,7 @@
 #   feature.sh verify <id>           levels 0-2 of scripts/verify.sh, then its end-to-end flow;
 #                                    only a pass marks it passing, with evidence
 #   feature.sh block <id> <reason>   mark it blocked, with what it waits on
+#   feature.sh remaining             a loop's stop condition: exits 0 once every feature is passing or blocked
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -87,10 +88,26 @@ cmd_block() {
   echo "feature: '$id' is blocked by: $reason"
 }
 
+# The machine-checkable stop condition for a goal loop over the feature list.
+cmd_remaining() {
+  local total open blocked
+  total="$(jq '.features | length' "$FEATURES")"
+  ((total > 0)) || { echo "feature: no features yet, so there is no goal to reach. Write them first."; return 1; }
+  open="$(jq -r '.features[] | select(.state == "not_started" or .state == "active") | "\(.state)\t\(.id)\t\(.title)"' "$FEATURES")"
+  blocked="$(jq -r '[.features[] | select(.state == "blocked")] | length' "$FEATURES")"
+  if [[ -n "$open" ]]; then
+    echo "feature: $(wc -l <<<"$open" | tr -d ' ') of $total features remain; next is the first:"
+    echo "$open"
+    return 1
+  fi
+  echo "feature: goal reached: every feature is passing$( ((blocked > 0)) && echo " or blocked; $blocked blocked need a human")."
+}
+
 case "${1:-}" in
   list) cmd_list ;;
   start) cmd_start "${2:-}" ;;
   verify) cmd_verify "${2:-}" ;;
   block) cmd_block "${2:-}" "${3:-}" ;;
-  *) sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2 ;;
+  remaining) cmd_remaining ;;
+  *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2 ;;
 esac

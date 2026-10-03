@@ -29,7 +29,8 @@ A flaky test is a bug; fix it when you see it.
 | 3 End to end | Each `passing` feature's user flow still works through the real interface | Each feature's `verify` in `docs/features.json` |
 
 Drive end-to-end flows through what a user touches: a browser-automation suite (such as Playwright) for a web UI, the built binary for a CLI, real HTTP calls against the running server for an API, and computer use for a desktop or mobile app.
-Scripted flows catch regressions on every run; walking the flow yourself with computer use or a browser catches what scripts do not look at, such as layout, copy, and states a test never reaches.
+Scripted flows catch regressions on every run; an independent evaluator walking the flow with computer use or a browser catches what scripts do not look at, such as layout, copy, and states a test never reaches.
+The walker is never the agent that wrote the code (`docs/loops.md`).
 Both are part of the Definition of Done.
 
 ## Reference
@@ -40,4 +41,4 @@ Both are part of the Definition of Done.
 ## Checklist
 
 - [ ] The new test fails without your change and passes with it.
-- [ ] `scripts/verify.sh` passes every level, and you walked the flow yourself on the running project.
+- [ ] `scripts/verify.sh` passes every level, and the `evaluator` subagent's verdict on the running project is `PASS`.

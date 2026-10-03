@@ -26,7 +26,7 @@ If you will also use the app day to day, give the development build a "Developer
 4. **Tests and checks.**
 Configure the formatter, linter, type-checker, test runner, and an end-to-end tool that drives the real interface, and write one real test that passes.
 Fill the levels in `scripts/verify.sh` (`run_static`, `run_tests`, `run_startup`), list their commands in the Definition of Done in `AGENTS.md`, and fill `docs/testing.md`.
-Confirm you can reach the running app with computer use or a browser, so features can be walked end to end.
+Confirm you can reach the running app with computer use or a browser, and give the `evaluator` subagent (`.claude/agents/evaluator.md`) the same tools, so features can be walked end to end by an independent judge.
 Break something at each level on purpose and confirm `scripts/verify.sh` stops at that level.
 5. **Docs.**
 Fill every remaining `TODO(project)` slot: conventions, security, tools, and hard constraints.
@@ -36,6 +36,7 @@ Where a slot does not apply yet, write that and why.
 Break the idea into small features in `docs/features.json`, in priority order, all `not_started`, each one finishable and verifiable alone in one session.
 Give each an `id` (a lowercase slug), a `title`, a measurable `behavior`, and a `verify` command: the exact focused test that proves it.
 `scripts/verify.sh` checks the shape, and `scripts/feature.sh list` shows the result.
+From here, `docs/loops.md` has the goal contract that works through the list without you as the trigger.
 7. **Checkpoint.**
 Delete `harness/`, this file, the Initialization section of `AGENTS.md`, and their lines in the repo map.
 Run `scripts/verify.sh`, which now also fails on any unfilled slot, and commit the result as one "Initialize project" commit.

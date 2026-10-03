@@ -47,6 +47,7 @@ Why the computer-use walk is a Definition of Done item and not a script:
 a scripted flow checks only what it asserts.
 An agent looking at the running app catches layout, copy, and states no test reaches, which is the gap between "tests pass" and "it works".
 No script can prove the walk happened, so it stays a checklist item next to the scripted flows that run on every commit.
+Superseded by [13](13-from-manual-prompting-to-autonomous-loops.md): the walk is now done by an independent evaluator (the `evaluator` subagent), not the agent that wrote the code.
 
 Why startup is its own check at level 2:
 "the code compiles and the tests pass, but the app does not start" is the most common early victory, and only actually starting it catches that.
