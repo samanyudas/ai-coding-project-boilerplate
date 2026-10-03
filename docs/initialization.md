@@ -29,10 +29,10 @@ Break something on purpose and confirm `scripts/verify.sh` fails.
 5. **Docs.**
 Fill every remaining `TODO(project)` slot: conventions, security, tools, and hard constraints.
 Where a slot does not apply yet, write that and why.
-6. **Tasks.**
-Break the idea into small, independently verifiable tasks under Tasks in `PROGRESS.md`, all `not_started`, in priority order, each finishable, verifiable, and committable in one session.
-Give each task acceptance criteria: the observable result and how it is checked.
-`scripts/verify.sh` checks that every task has them.
+6. **Features.**
+Break the idea into small features in `docs/features.json`, in priority order, all `not_started`, each one finishable and verifiable alone in one session.
+Give each an `id` (a lowercase slug), a `title`, a measurable `behavior`, and a `verify` command: the exact focused test that proves it.
+`scripts/verify.sh` checks the shape, and `scripts/feature.sh list` shows the result.
 7. **Checkpoint.**
 Delete `harness/`, this file, the Initialization section of `AGENTS.md`, and their lines in the repo map.
 Run `scripts/verify.sh`, which now also fails on any unfilled slot, and commit the result as one "Initialize project" commit.
@@ -45,5 +45,5 @@ A new session must be able to start, test, understand progress, and continue wit
 - [ ] `scripts/setup.sh` works in a fresh clone, `scripts/check-ready.sh` reports ready, and the project starts.
 - [ ] At least one real test passes through `scripts/verify.sh`, and breaking the code makes it fail.
 - [ ] No `TODO(project)` slot remains.
-- [ ] `PROGRESS.md` lists the first tasks, each with acceptance criteria.
+- [ ] `docs/features.json` lists the first features, each with a measurable behavior and an exact `verify` command.
 - [ ] Initialization is committed, and a fresh session passes the test.

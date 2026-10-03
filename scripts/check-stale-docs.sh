@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Warns when a change leaves docs behind:
 # - a module's files changed but its ARCHITECTURE.md or CONSTRAINTS.md did not;
-# - in a started project (no harness/), PROGRESS.md was not updated.
+# - in a started project (no harness/), neither docs/features.json nor PROGRESS.md was updated.
 # A reminder, not a gate: it always exits 0.
 # Usage: check-stale-docs.sh <git diff args>, e.g. `--cached` or `<base> HEAD`.
 set -euo pipefail
@@ -27,6 +27,6 @@ warn() {
   fi
 done
 
-if [[ ! -d harness ]] && ! grep -qxF PROGRESS.md <<<"$changed"; then
-  warn PROGRESS.md "PROGRESS.md was not updated. Record what this unit of work finished and what comes next."
+if [[ ! -d harness ]] && ! grep -qxE 'PROGRESS\.md|docs/features\.json' <<<"$changed"; then
+  warn PROGRESS.md "Neither docs/features.json nor PROGRESS.md changed. Record what this unit finished and how far the active feature got."
 fi

@@ -25,6 +25,8 @@ Independent agents can work in parallel on isolated tasks when dependencies and 
 
 ## Design choices
 
+Superseded by [08](08-feature-lists-as-harness-primitives.md): the task list moved out of `PROGRESS.md` into `docs/features.json`, and only `scripts/feature.sh` changes a state. WIP = 1, the statuses, and the parallel-agent rule carried over.
+
 Why one Tasks list instead of separate sections:
 with a status on every task, In progress, Next steps, Blockers, and Done were the same list filtered four ways.
 One list in priority order keeps a single place to look, and a status change is a one-word edit instead of moving a line between sections.

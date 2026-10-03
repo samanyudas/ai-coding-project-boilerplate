@@ -23,7 +23,7 @@ Tool-specific files such as `CLAUDE.md` only import it, so every agent tool read
 - Rationale lives here, not in `AGENTS.md`.
 `AGENTS.md` is loaded every session, so it holds only what changes the agent's behaviour.
 - Unfilled project slots are written `TODO(project)` so `rg 'TODO\(project\)'` lists everything a new project must fill in.
-- `PROGRESS.md` and `DECISIONS.md` stay templates in the boilerplate, so every fork starts clean.
+- `PROGRESS.md`, `DECISIONS.md`, and `docs/features.json` stay templates in the boilerplate, so every fork starts clean.
 Boilerplate progress is tracked by the chapter index below.
 
 ## Chapters
@@ -37,3 +37,4 @@ Boilerplate progress is tracked by the chapter index below.
 | 05 | [Keeping context alive across sessions](notes/05-keeping-context-alive-across-sessions.md) | `PROGRESS.md` reshaped, `DECISIONS.md` with a format check, `scripts/restore-state.sh` and its Claude Code hook, `PROGRESS.md` reminder |
 | 06 | [Why initialization needs its own phase](notes/06-initialization-as-its-own-phase.md) | `docs/initialization.md`, `scripts/check-ready.sh` with a setup fingerprint, tasks with acceptance criteria, task-first Quick start |
 | 07 | [Why agents overreach and under-finish](notes/07-why-agents-overreach-and-under-finish.md) | One Tasks list with statuses in `PROGRESS.md`, WIP = 1 check, scope and parallel-agent hard constraints, end-to-end acceptance |
+| 08 | [Why feature lists are harness primitives](notes/08-feature-lists-as-harness-primitives.md) | `docs/features.json`, `scripts/feature.sh` as the only state changer, evidence on pass, re-verification of passing features in `scripts/verify.sh`, Feature list rules in `AGENTS.md` |

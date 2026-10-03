@@ -31,6 +31,7 @@ if [[ "${1:-}" == "--record" ]]; then
 fi
 
 problems=()
+command -v jq >/dev/null || problems+=("jq is not installed")
 [[ "$(git config core.hooksPath || true)" == ".githooks" ]] || problems+=("git hooks are not enabled")
 if [[ ! -f "$STAMP" ]]; then
   problems+=("setup has not run in this checkout")

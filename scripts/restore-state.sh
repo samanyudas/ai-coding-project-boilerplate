@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Prints the saved state a new or compacted session needs: PROGRESS.md, the
+# Prints the saved state a new or compacted session needs: the features, PROGRESS.md, the
 # DECISIONS.md headings, the git checkpoint, and environment readiness.
 # Read-only; safe to run anytime.
 # Claude Code runs it at every session start, including after compaction.
@@ -7,6 +7,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 echo "# Restored state"
+echo
+echo "## Features (scripts/feature.sh list; the behavior and verification are in docs/features.json)"
+echo
+scripts/feature.sh list
 echo
 echo "## PROGRESS.md"
 echo

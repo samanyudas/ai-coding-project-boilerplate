@@ -31,7 +31,7 @@ It must succeed with no manual steps.
 5. **Feedback.**
 Break something on purpose and confirm `scripts/verify.sh` fails.
 6. **State.**
-Confirm `PROGRESS.md` matches reality, `DECISIONS.md` has no live decision missing, and `scripts/restore-state.sh` prints what a new session needs.
+Confirm `docs/features.json` and `PROGRESS.md` match reality, every `passing` feature's `verify` still tests its behavior, `DECISIONS.md` has no live decision missing, and `scripts/restore-state.sh` prints what a new session needs.
 7. **Fresh session test.**
 Start a new agent session with no prior context and ask it five questions.
 Each answer must come from the repo, and match reality:

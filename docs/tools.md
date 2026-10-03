@@ -4,7 +4,8 @@ Agents get the tools the job needs, and no more.
 
 ## Project tools
 
-- `scripts/setup.sh` and `scripts/verify.sh`, described in `AGENTS.md`.
+- The scripts in `scripts/`, described in the repo map in `AGENTS.md`.
+- `jq`, which `scripts/feature.sh` and `scripts/verify.sh` use to read and update `docs/features.json`; `scripts/setup.sh` requires it.
 - TODO(project): Each CLI, MCP server, or agent plugin the project uses, with what it is for and where it is configured.
 
 ## Adding a tool

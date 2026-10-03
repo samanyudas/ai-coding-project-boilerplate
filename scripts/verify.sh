@@ -110,25 +110,53 @@ check_decisions() {
   ' DECISIONS.md
 }
 
-# Tasks in PROGRESS.md: a known status, a bold title, acceptance criteria, a reason when
-# blocked, and WIP = 1, so at most one task is active.
-check_tasks() {
-  awk '
-    function fail(msg) { printf "PROGRESS.md: %s: %s\n", msg, $0 > "/dev/stderr"; bad = 1 }
-    /^## / { inside = ($0 == "## Tasks"); next }
-    inside && /^- / {
-      if ($0 !~ /^- `(not_started|active|blocked|passing)` \*\*[^*]+\*\* /) { fail("task must open with a status and a bold title"); next }
-      if (index($0, "Acceptance:") == 0) fail("task without acceptance criteria")
-      if ($0 ~ /^- `blocked`/ && index($0, "Blocked by:") == 0) fail("blocked task without \"Blocked by:\"")
-      if ($0 ~ /^- `active`/) active++
-    }
-    END {
-      if (active > 1) {
-        printf "PROGRESS.md: %d tasks are active, and WIP = 1 allows one. Set the others back to not_started or blocked.\n", active > "/dev/stderr"; bad = 1
-      }
-      exit bad
-    }
-  ' PROGRESS.md
+# docs/features.json: each feature well formed, WIP = 1, and every passing feature re-verified,
+# because a past pass does not prove it still works.
+check_features() {
+  local started problems id cmd log ok=0
+  if [[ -d harness ]]; then started=false; else started=true; fi
+  if ! problems="$(jq -r --argjson started "$started" '
+    def bad(msg): "docs/features.json: \(msg)";
+    .features as $f
+    | if ($f | type) != "array" then bad("needs a \"features\" array") else
+        ( $f[] | . as $x
+          | ( if (.id | type) == "string" and (.id | test("^[a-z0-9][a-z0-9-]*$")) then empty
+              else bad("feature id \(.id | tojson) must be a lowercase slug") end ),
+            ( ("title", "behavior", "verify") as $k
+              | if ($x[$k] | type) == "string" and $x[$k] != "" then empty else bad("\($x.id): missing \($k)") end ),
+            ( if .state | IN("not_started", "active", "blocked", "passing") then empty
+              else bad("\(.id): unknown state \(.state | tojson)") end ),
+            ( if (.verify // "") | test("verify\\.sh") then bad("\(.id): verify must be a focused test, not scripts/verify.sh, which re-runs it") else empty end ),
+            ( if .state == "blocked" and ((.blocked_by // "") == "") then bad("\(.id): blocked without blocked_by") else empty end ),
+            ( if .state == "passing" and .evidence == null
+              then bad("\(.id): passing without evidence; only scripts/feature.sh verify marks a feature passing") else empty end )
+        ),
+        ( [$f[].id] | group_by(.) | map(select(length > 1))[] | bad("duplicate id \(.[0])") ),
+        ( [$f[] | select(.state == "active")] | length
+          | if . > 1 then bad("\(.) features are active, and WIP = 1 allows one") else empty end ),
+        ( if $started and ($f | length) == 0 then bad("no features yet; write them as docs/initialization.md describes") else empty end )
+      end
+  ' docs/features.json 2>&1)"; then
+    echo "docs/features.json: not valid JSON: $problems" >&2
+    return 1
+  fi
+  if [[ -n "$problems" ]]; then
+    echo "$problems" >&2
+    return 1
+  fi
+
+  log="$(mktemp)"
+  while IFS=$'\t' read -r id cmd; do
+    [[ -n "$id" ]] || continue
+    echo "    re-verifying $id"
+    if ! bash -c "$cmd" >"$log" 2>&1; then
+      tail -20 "$log" >&2
+      echo "docs/features.json: passing feature '$id' no longer passes: $cmd" >&2
+      ok=1
+    fi
+  done < <(jq -r '.features[] | select(.state == "passing") | [.id, .verify] | @tsv' docs/features.json)
+  rm "$log"
+  return "$ok"
 }
 
 # A started project (harness/ deleted) must answer every slot, so a fresh session finds no gaps.
@@ -156,8 +184,8 @@ echo "==> hard constraints"
 check_hard_constraints
 echo "==> decisions"
 check_decisions
-echo "==> tasks"
-check_tasks
+echo "==> features"
+check_features
 echo "==> project slots"
 check_todo_slots
 echo "==> project checks"

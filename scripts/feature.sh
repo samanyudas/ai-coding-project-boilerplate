@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# The only way a feature's state changes in docs/features.json.
+# Usage:
+#   feature.sh list                  every feature with its state
+#   feature.sh start <id>            make a not_started or blocked feature active (WIP = 1)
+#   feature.sh verify <id>           run its verification; only a pass marks it passing, with evidence
+#   feature.sh block <id> <reason>   mark it blocked, with what it waits on
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+FEATURES=docs/features.json
+
+die() {
+  echo "feature: $*" >&2
+  exit 1
+}
+
+field() {
+  jq -r --arg id "$1" ".features[] | select(.id == \$id) | .$2 // empty" "$FEATURES"
+}
+
+# Applies a jq update to one feature, keeping the file's permissions.
+update() {
+  local id="$1" expr="$2" tmp
+  shift 2
+  tmp="$(mktemp)"
+  jq --arg id "$id" "$@" "(.features[] | select(.id == \$id)) |= ($expr)" "$FEATURES" >"$tmp"
+  cat "$tmp" >"$FEATURES"
+  rm "$tmp"
+}
+
+require() {
+  [[ -n "${1:-}" ]] || die "missing feature id. Run 'scripts/feature.sh list' to see them."
+  [[ -n "$(field "$1" id)" ]] || die "no feature '$1' in $FEATURES"
+}
+
+cmd_list() {
+  jq -r '
+    if (.features | length) == 0 then "No features yet."
+    else .features[] | "\(.state)\t\(.id)\t\(.title)" + (if .state == "blocked" then "  (blocked by: \(.blocked_by))" else "" end)
+    end
+  ' "$FEATURES"
+}
+
+cmd_start() {
+  local id="$1" state active
+  require "$id"
+  state="$(field "$id" state)"
+  [[ "$state" == "not_started" || "$state" == "blocked" ]] || die "'$id' is $state; only a not_started or blocked feature can start."
+  active="$(jq -r '.features[] | select(.state == "active") | .id' "$FEATURES")"
+  [[ -z "$active" ]] || die "'$active' is already active, and WIP = 1 allows one. Verify it or block it first."
+  update "$id" '.state = "active" | .blocked_by = null'
+  echo "feature: '$id' is active. Its behavior: $(field "$id" behavior)"
+}
+
+cmd_verify() {
+  local id="$1" state cmd log summary dirty
+  require "$id"
+  state="$(field "$id" state)"
+  [[ "$state" == "active" || "$state" == "passing" ]] || die "'$id' is $state; start it before verifying it."
+  cmd="$(field "$id" verify)"
+  log="$(mktemp)"
+  echo "feature: verifying '$id' with: $cmd"
+  if ! bash -c "$cmd" >"$log" 2>&1; then
+    tail -40 "$log"
+    rm "$log"
+    die "'$id' failed its verification and stays $state. Fix it and verify again, or block it."
+  fi
+  summary="$(sed -e "s/$(printf '\033')\[[0-9;]*m//g" -e '/^[[:space:]]*$/d' "$log" | tail -1 | cut -c1-200)"
+  rm "$log"
+  if [[ -n "$(git status --porcelain)" ]]; then dirty=true; else dirty=false; fi
+  update "$id" '.state = "passing" | .blocked_by = null | .evidence = {
+      result: "passed", command: $cmd, summary: $summary, verified_at: $at,
+      commit: $commit, uncommitted_changes: $dirty }' \
+    --arg cmd "$cmd" --arg summary "$summary" --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    --arg commit "$(git rev-parse --short HEAD)" --argjson dirty "$dirty"
+  echo "feature: '$id' is passing. Commit it, with its code and tests, as one unit."
+}
+
+cmd_block() {
+  local id="$1" reason="${2:-}"
+  require "$id"
+  [[ -n "$reason" ]] || die "say what '$id' waits on: scripts/feature.sh block $id \"<reason>\""
+  update "$id" '.state = "blocked" | .blocked_by = $reason' --arg reason "$reason"
+  echo "feature: '$id' is blocked by: $reason"
+}
+
+case "${1:-}" in
+  list) cmd_list ;;
+  start) cmd_start "${2:-}" ;;
+  verify) cmd_verify "${2:-}" ;;
+  block) cmd_block "${2:-}" "${3:-}" ;;
+  *) sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2 ;;
+esac
