@@ -49,6 +49,7 @@ Run merged into Quick start, Verification merged into the checklist, and Where k
 - `docs/harness-audit.md`: the instruction audit now covers duplicates, conflicts, and oversized files; the A/B test joins the ablation test.
 - `scripts/verify.sh`: limits at the top of the file (100 lines for `AGENTS.md`, 150 for each topic and module doc, 15 hard constraints), and repo map lines may list several paths.
 - `.github/workflows/harness-audit.yml`: created; opens a "Harness audit YYYY-MM" issue on the 1st of each month, once.
+  Superseded by [12](12-why-every-session-must-leave-a-clean-state.md): renamed `.github/workflows/maintenance.yml`, which also opens the weekly cleanup issue.
 - `.gitignore`: created; ignores `.env` files, as `docs/security.md` requires.
 
 ## Design choices
@@ -60,6 +61,7 @@ Superseded by [05](05-keeping-context-alive-across-sessions.md): the failure pro
 
 Why the routing table puts "checkable by a tool" first:
 the agent picks the first place that fits, so an enforceable rule never lands in prose.
+Superseded by [12](12-why-every-session-must-leave-a-clean-state.md): the table moved to `docs/documentation.md`, and `AGENTS.md` keeps a two-line pointer that names its destinations.
 
 Why the hard constraints are a numbered list:
 `scripts/verify.sh` counts numbered items in that section, which makes the limit checkable.

@@ -13,7 +13,7 @@ Look for the harness gap before switching the model or retrying.
 
 ## Monthly checklist
 
-`.github/workflows/harness-audit.yml` opens an issue on the 1st of each month as the reminder.
+`.github/workflows/maintenance.yml` opens a "Harness audit" issue on the 1st of each month as the reminder; the weekly code cleanup is in `docs/cleanup.md`.
 
 1. **Tools.**
 List every tool, MCP server, plugin, and hook configured for this project.

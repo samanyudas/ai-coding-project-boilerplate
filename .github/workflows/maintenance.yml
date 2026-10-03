@@ -1,0 +1,44 @@
+name: maintenance
+
+on:
+  schedule:
+    - cron: "0 9 * * 1" # weekly cleanup, Mondays
+    - cron: "0 9 1 * *" # monthly harness audit
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: Which issue to open
+        type: choice
+        options: [cleanup, audit]
+        default: cleanup
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  open-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - run: scripts/setup.sh
+      - name: Open this period's issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          KIND: ${{ inputs.kind || (github.event.schedule == '0 9 1 * *' && 'audit' || 'cleanup') }}
+        run: |
+          if [ "$KIND" = audit ]; then
+            title="Harness audit $(date -u +%Y-%m)"
+            body="Run the monthly checklist in \`docs/harness-audit.md\`, record the result in its Audit log, and close this issue."
+          else
+            title="Weekly cleanup $(date -u +%G-W%V)"
+            body="$(scripts/scan.sh)"
+          fi
+          if gh issue list --state open --json title --jq '.[].title' | grep -qxF "$title"; then
+            echo "Already open: $title"
+            exit 0
+          fi
+          gh issue create --title "$title" --body "$body"

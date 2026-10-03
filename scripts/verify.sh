@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # The single verification command: the Definition of Done, checked in levels.
-#   0 harness            the repo's own rules: map, doc sizes, constraints, decisions, features, slots
+#   0 harness            the repo's own rules: map, doc sizes, constraints, decisions, features,
+#                        architecture file, slots, temporary debug code
 #   1 static             architecture rules, format, lint, type-check
 #   2 tests and startup  unit and integration tests, and the project starts
 #   3 end to end         every passing feature's end-to-end flow, re-run
@@ -24,12 +25,10 @@ RUN_DIR="$(new_run_dir verify)"
 ln -sfn "$(basename "$RUN_DIR")" "$RUNS_DIR/latest"
 printf 'level\tcheck\tstatus\tseconds\tlog\n' >"$RUN_DIR/checks.tsv"
 
-# Limits. Raise one only after trying to split the file it guards.
-AGENTS_MAX_LINES=100
-DOC_MAX_LINES=150
-HARD_CONSTRAINTS_MAX=15
+source scripts/lib/limits.sh
 
 TODO_MARKER="TODO(project)"
+TEMP_MARKER="TEMP(debug)"
 
 section() {
   awk -v heading="## $1" '/^## /{inside = ($0 == heading); next} inside' AGENTS.md
@@ -182,6 +181,17 @@ reverify_features() {
   return "$ok"
 }
 
+# Temporary debug code is marked so it cannot be forgotten; none may reach a commit.
+check_temp_markers() {
+  local hits
+  hits="$(git grep --untracked -nF "$TEMP_MARKER:" -- ':!*.md' || true)"
+  if [[ -n "$hits" ]]; then
+    echo "$hits" >&2
+    echo "temporary debug code above is still marked $TEMP_MARKER, and committing it leaves debt for the next session. Remove it, or make it permanent and drop the marker." >&2
+    return 1
+  fi
+}
+
 # A started project (harness/ deleted) must answer every slot, so a fresh session finds no gaps.
 check_todo_slots() {
   [[ -d harness ]] && return 0
@@ -299,7 +309,7 @@ run_level() {
   fi
 }
 
-run_level 0 "harness" check_repo_map check_doc_sizes check_hard_constraints check_decisions check_features check_architecture_file check_todo_slots
+run_level 0 "harness" check_repo_map check_doc_sizes check_hard_constraints check_decisions check_features check_architecture_file check_todo_slots check_temp_markers
 run_level 1 "static" check_architecture run_static
 run_level 2 "tests and startup" run_tests run_startup
 run_level 3 "end to end" reverify_features
