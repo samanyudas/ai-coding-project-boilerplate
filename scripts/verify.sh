@@ -5,14 +5,20 @@ shopt -s nullglob
 cd "$(dirname "$0")/.."
 
 AGENTS_MAX_LINES=100
+TODO_MARKER="TODO(project)"
 
 map_paths() {
   awk '/^## /{in_map = ($0 == "## Repo map"); next} in_map && /^- `/' AGENTS.md |
     sed -E 's/^- `([^`]+)`.*/\1/'
 }
 
+module_docs() {
+  git ls-files --cached --others --exclude-standard |
+    grep -E '(^|/)(ARCHITECTURE|CONSTRAINTS)\.md$' || true
+}
+
 check_repo_map() {
-  local ok=0 path entry
+  local ok=0 path entry doc
   local paths
   paths="$(map_paths)"
 
@@ -30,6 +36,13 @@ check_repo_map() {
     fi
   done
 
+  while IFS= read -r doc; do
+    if [[ -n "$doc" ]] && ! grep -qxF "$doc" <<<"$paths"; then
+      echo "repo map: module doc '$doc' is missing from the repo map in AGENTS.md" >&2
+      ok=1
+    fi
+  done <<<"$(module_docs)"
+
   return "$ok"
 }
 
@@ -42,8 +55,20 @@ check_agents_length() {
   fi
 }
 
+# A started project (harness/ deleted) must answer every slot, so a fresh session finds no gaps.
+check_todo_slots() {
+  [[ -d harness ]] && return 0
+  local hits
+  hits="$(git grep --untracked -nF "$TODO_MARKER:" || true)"
+  if [[ -n "$hits" ]]; then
+    echo "$hits" >&2
+    echo "unfilled $TODO_MARKER slots above. Fill each one, or write why it does not apply yet." >&2
+    return 1
+  fi
+}
+
 run_project_checks() {
-  # TODO(project): Add the format, lint, type-check, and test commands listed in AGENTS.md.
+  # TODO(project): Add the format, lint, type-check, test, and build commands listed in AGENTS.md.
   :
 }
 
@@ -51,6 +76,8 @@ echo "==> repo map"
 check_repo_map
 echo "==> AGENTS.md length"
 check_agents_length
+echo "==> project slots"
+check_todo_slots
 echo "==> project checks"
 run_project_checks
 echo "verify: all checks passed"

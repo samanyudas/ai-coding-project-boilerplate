@@ -18,7 +18,7 @@ When a lesson can be enforced by a script or check, enforce it rather than addin
 
 ## Cross-chapter decisions
 
-- `AGENTS.md` is the single source of agent rules.
+- `AGENTS.md` is the entry point for every agent, and it points to every other doc.
 Tool-specific files such as `CLAUDE.md` only import it, so every agent tool reads the same rules.
 - Rationale lives here, not in `AGENTS.md`.
 `AGENTS.md` is loaded every session, so it holds only what changes the agent's behaviour.
@@ -32,3 +32,4 @@ Boilerplate progress is tracked by the chapter index below.
 | --- | --- | --- |
 | 01 | [Why capable agents still fail](notes/01-why-capable-agents-still-fail.md) | `AGENTS.md`, `CLAUDE.md`, `scripts/verify.sh` |
 | 02 | [What a harness actually is](notes/02-what-a-harness-actually-is.md) | `AGENTS.md` split into `docs/`, `PROGRESS.md`, `scripts/setup.sh`, pre-commit hook, CI |
+| 03 | [Why the repository must be the single source of truth](notes/03-repo-as-single-source-of-truth.md) | Run and Where knowledge goes in `AGENTS.md`, module docs, `scripts/check-module-docs.sh`, unfilled-slot check, fresh session test |

@@ -20,6 +20,16 @@ It must succeed with no manual steps.
 Break something on purpose and confirm `scripts/verify.sh` fails.
 6. **State.**
 Confirm `PROGRESS.md` matches reality.
+7. **Fresh session test.**
+Start a new agent session with no prior context and ask it five questions.
+Each answer must come from the repo, and match reality:
+   - What is this system?
+   - How is it organized?
+   - How do I run it?
+   - How do I verify it?
+   - What is the current state?
+
+   Every wrong or missing answer is a gap in `AGENTS.md`, `PROGRESS.md`, or a module doc; fix it there.
 
 ## Ablation test
 

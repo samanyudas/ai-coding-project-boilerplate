@@ -9,5 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - run: scripts/setup.sh
       - run: scripts/verify.sh
+      - name: Check module docs
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            scripts/check-module-docs.sh "$BASE" HEAD
+          else
+            echo "No base commit to compare against; skipping."
+          fi
