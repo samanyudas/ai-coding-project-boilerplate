@@ -10,6 +10,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 FEATURES=docs/features.json
+source scripts/lib/runs.sh
 
 die() {
   echo "feature: $*" >&2
@@ -62,15 +63,13 @@ cmd_verify() {
   cmd="$(field "$id" verify)"
   echo "feature: levels 0 to 2 must pass before '$id' runs its end-to-end flow"
   scripts/verify.sh --upto 2 || die "levels 0 to 2 failed, so '$id' stays $state. Fix them first."
-  log="$(mktemp)"
+  log="$(new_run_dir "feature-$id")/flow.log"
   echo "feature: verifying '$id' end to end with: $cmd"
   if ! bash -c "$cmd" >"$log" 2>&1; then
     tail -40 "$log"
-    rm "$log"
-    die "'$id' failed its verification and stays $state. Fix it and verify again, or block it."
+    die "'$id' failed its verification and stays $state. Full log: $log. Diagnose the cause from it before retrying, or block the feature."
   fi
   summary="$(sed -e "s/$(printf '\033')\[[0-9;]*m//g" -e '/^[[:space:]]*$/d' "$log" | tail -1 | cut -c1-200)"
-  rm "$log"
   if [[ -n "$(git status --porcelain)" ]]; then dirty=true; else dirty=false; fi
   update "$id" '.state = "passing" | .blocked_by = null | .evidence = {
       result: "passed", command: $cmd, summary: $summary, verified_at: $at,

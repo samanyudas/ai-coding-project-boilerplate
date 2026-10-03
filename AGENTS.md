@@ -36,7 +36,8 @@ TODO(project): What this project is, who it is for, and what it must do, in one 
 4. Commit each unit of work as soon as it is done and verified, with its code, tests, docs, and updated state (`docs/features.json`, `PROGRESS.md`), so compaction or a crash never loses finished work. Discard a failed attempt with `git restore` or by dropping its branch.
 5. WIP = 1 is per agent: parallel agents each take a different, independent feature, on their own branch in their own worktree, and merge only finished, verified work.
 6. Keep secrets out of tracked files.
-7. TODO(project): Project-wide hard constraints, one per line, each with its reason.
+7. Diagnose before retrying: read the failing log (`.harness/runs/latest/`) or runtime signal and name the cause first, so a retry tests a hypothesis instead of guessing.
+8. TODO(project): Project-wide hard constraints, one per line, each with its reason.
 
 ## Feature list rules
 
@@ -58,8 +59,8 @@ Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 - `docs/conventions.md`, `docs/architecture.json` - Architecture and code rules, and their machine-checked part: components, integration test paths, and dependency rules. Read before writing code.
 - `docs/testing.md` - How tests are written and run. Read before writing or changing tests.
 - `docs/security.md` - Secrets, credentials, and untrusted input. Read before touching any of them.
-- `docs/tools.md` - Which tools agents use. Read before adding a tool, MCP server, or script.
-- `docs/documentation.md` - How docs are structured and sized. Read before writing any doc, this one included.
+- `docs/tools.md`, `docs/documentation.md` - Which tools agents use, and how docs are structured and sized. Read before adding a tool or script, or writing any doc.
+- `docs/observability.md` - Logs, health checks, run evidence, and the verification report. Read before diagnosing a failure, or adding code that runs.
 - `docs/harness-audit.md` - Fixing, auditing, and measuring the harness. Read when a task fails, when asked to audit, or when results get worse.
 - `scripts/setup.sh`, `scripts/check-ready.sh` - Build the environment from a fresh clone, and check fast that it still matches. Both safe to re-run.
 - `scripts/restore-state.sh`, `.claude/settings.json` - Print the saved state and readiness; the Claude Code hook runs it at session start and after compaction.
@@ -94,5 +95,5 @@ A feature is done when its end-to-end verification passes, not when its code is 
 3. End to end: every `passing` feature's flow, re-run.
 
 - [ ] New or changed behaviour has a test, a change across components has an integration or end-to-end test that crosses them, and `scripts/feature.sh verify <id>` (levels 0 to 2, then the feature's end-to-end flow) marked it `passing`.
-- [ ] You ran the user flow yourself on the running project (computer use or a browser for a UI; the real CLI or HTTP calls otherwise), and what you saw matched the behavior.
+- [ ] You ran the user flow yourself on the running project (computer use or a browser for a UI; the real CLI or HTTP calls otherwise), and recorded evidence for each requirement in the verification report (`docs/observability.md`).
 - [ ] New knowledge is written where the table above puts it, and the unit is committed with a message that says why.

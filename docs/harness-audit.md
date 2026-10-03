@@ -26,6 +26,7 @@ Split any doc near its size limit by topic.
 3. **Executable rules.**
 For each written rule agents still break, and each issue reviews raised more than once, add a check: a rule in `docs/architecture.json`, a check in `scripts/verify.sh`, a hook, or a CI step.
 Read the failure messages too: each must say what broke, why, and how to fix it.
+Check that a recent failure could be diagnosed from `.harness/runs/` and the project's logs alone.
 4. **Environment.**
 Run `scripts/setup.sh` in a fresh clone.
 It must succeed with no manual steps.

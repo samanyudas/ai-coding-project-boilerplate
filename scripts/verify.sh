@@ -6,6 +6,8 @@
 #   3 end to end         every passing feature's end-to-end flow, re-run
 # Levels run in order and stop at the first that fails, because a later level
 # means nothing while an earlier one is broken.
+# Every run leaves a log per check and a summary.json under .harness/runs/ (latest: .harness/runs/latest),
+# and a failure prints the end of the failing check's log with the path to the rest.
 # Usage: verify.sh [--upto <level>]   e.g. --upto 1 for a fast inner loop
 set -euo pipefail
 shopt -s nullglob
@@ -16,6 +18,11 @@ if [[ "${1:-}" == "--upto" ]]; then
   [[ "${2:-}" =~ ^[0-3]$ ]] || { echo "verify: --upto takes a level from 0 to 3" >&2; exit 2; }
   UPTO="$2"
 fi
+
+source scripts/lib/runs.sh
+RUN_DIR="$(new_run_dir verify)"
+ln -sfn "$(basename "$RUN_DIR")" "$RUNS_DIR/latest"
+printf 'level\tcheck\tstatus\tseconds\tlog\n' >"$RUN_DIR/checks.tsv"
 
 # Limits. Raise one only after trying to split the file it guards.
 AGENTS_MAX_LINES=100
@@ -243,27 +250,51 @@ run_tests() {
 }
 
 run_startup() {
-  # TODO(project): Start the project, confirm it answers (e.g. a health endpoint or `--version`), and stop it.
+  # TODO(project): Start the project, call its health check (docs/observability.md), and stop it.
   :
 }
 
-# Runs every check in a level, each in its own `set -e` subshell, then stops if any failed.
+# Writes summary.json for this run: <result> [failed level] [failed checks].
+finish_run() {
+  jq -Rn --arg result "$1" --arg level "${2:-}" --arg failed "${3:-}" --argjson upto "$UPTO" \
+    --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg commit "$(git rev-parse --short HEAD)" '
+    [inputs | split("\t")][1:] as $rows
+    | { command: "scripts/verify.sh", upto: $upto, finished_at: $at, commit: $commit, result: $result,
+        failed_level: (if $level == "" then null else ($level | tonumber) end),
+        failed_checks: (if $failed == "" then [] else ($failed | split(" ")) end),
+        checks: [$rows[] | {level: (.[0] | tonumber), check: .[1], status: .[2], seconds: (.[3] | tonumber), log: .[4]}] }
+  ' <"$RUN_DIR/checks.tsv" >"$RUN_DIR/summary.json"
+}
+
+# Runs every check in a level, each in its own `set -e` subshell with its output in its own log,
+# then stops if any failed, showing the end of each failing log.
 run_level() {
-  local n="$1" name="$2" check status failed=()
+  local n="$1" name="$2" check status log started failed=()
   shift 2
   ((n <= UPTO)) || return 0
   echo "==> level $n: $name"
   for check in "$@"; do
+    log="$RUN_DIR/$check.log"
+    started=$SECONDS
     set +e
-    (set -e; "$check")
+    (set -e; "$check") >"$log" 2>&1
     status=$?
     set -e
-    ((status == 0)) || failed+=("$check")
+    if ((status == 0)); then
+      printf '%s\t%s\tpassed\t%s\t%s\n' "$n" "$check" "$((SECONDS - started))" "$log" >>"$RUN_DIR/checks.tsv"
+    else
+      printf '%s\t%s\tfailed\t%s\t%s\n' "$n" "$check" "$((SECONDS - started))" "$log" >>"$RUN_DIR/checks.tsv"
+      failed+=("$check")
+      echo "--- $check failed; the end of $log:" >&2
+      tail -n 30 "$log" >&2
+    fi
   done
   if ((${#failed[@]} > 0)); then
+    finish_run failed "$n" "${failed[*]}"
     local skipped=""
     ((n < 3)) && skipped="; later levels did not run"
     echo "verify: level $n ($name) failed in ${failed[*]}. Fix what is reported above and re-run$skipped." >&2
+    echo "verify: full logs and summary.json in $RUN_DIR" >&2
     exit 1
   fi
 }
@@ -272,4 +303,5 @@ run_level 0 "harness" check_repo_map check_doc_sizes check_hard_constraints chec
 run_level 1 "static" check_architecture run_static
 run_level 2 "tests and startup" run_tests run_startup
 run_level 3 "end to end" reverify_features
-echo "verify: levels 0 to $UPTO passed"
+finish_run passed
+echo "verify: levels 0 to $UPTO passed (evidence in $RUN_DIR)"

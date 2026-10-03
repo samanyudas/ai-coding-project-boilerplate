@@ -21,6 +21,7 @@ Fill Tech stack in `AGENTS.md`, and record the choice and the rejected alternati
 Put every install step in `scripts/setup.sh`.
 In `scripts/check-ready.sh`, add the files that define the environment (lockfiles, runtime pin) to `ENV_FILES`, and fill the runtime check.
 Run `scripts/setup.sh` in a fresh clone, then start the project and see it respond; write that command into Quick start in `AGENTS.md`.
+Make the project observable: structured logs at a path an agent can read and a health check, recorded in `docs/observability.md`, with `run_startup` in `scripts/verify.sh` calling the health check.
 If you will also use the app day to day, give the development build a "Developer" name suffix, its own version, and its own bundle ID, so it installs beside the stable build without conflict.
 4. **Tests and checks.**
 Configure the formatter, linter, type-checker, test runner, and an end-to-end tool that drives the real interface, and write one real test that passes.
