@@ -25,7 +25,7 @@ In one line: a messy session exit makes the next agent recover context and inher
 
 - `scripts/end-session.sh`: created; deletes `.harness/scratch/`, then fails unless the environment is ready, nothing is uncommitted, the active feature is in the progress notes, and every verification level passes.
 - `scripts/verify.sh`: level 0 refuses temporary debug code marked `TEMP(debug)` with a colon; limits moved to `scripts/lib/limits.sh`.
-- `scripts/scan.sh`: created; the weekly report covering verification, size pressure (80% of a limit), debt markers, features, a week of review warnings, and a benchmarks slot.
+- `scripts/scan.sh`: created; the weekly report covering verification, size pressure (90% of a limit), debt markers, features, a week of review warnings, and a benchmarks slot.
 - `.github/workflows/harness-audit.yml` renamed `.github/workflows/maintenance.yml`; it opens a "Weekly cleanup" issue every Monday with the scan as its body, and the monthly audit issue as before.
 - `docs/cleanup.md`: created; scratch and debug-marker rules, what the session-end check does, and the weekly checklist, including moving repeated procedures into skills.
 - `AGENTS.md`: the Definition of Done ends with the session-end check; the routing table moved to `docs/documentation.md`, leaving a two-line pointer, which took the file from 100 lines to 89.
@@ -56,6 +56,10 @@ The scan does the finding on a schedule, so the weekly pass starts from evidence
 Why the routing table moved out of `AGENTS.md` now:
 `AGENTS.md` had reached exactly its 100-line limit, which the new scan flags as size pressure.
 The table is consulted only when adding a rule or knowledge, which is the same moment `docs/documentation.md` is read, so it moved there, applying this chapter's own weekly step.
+
+Why size pressure starts at 90% of a limit:
+the first run at 80% flagged `AGENTS.md` at 89 of 100 lines, its normal size, and would have done so every week.
+A line that always fires teaches readers to skip the report, so the threshold sits where a file genuinely needs splitting soon.
 
 Why limits moved to `scripts/lib/limits.sh`:
 `scripts/verify.sh` enforces them and `scripts/scan.sh` reports pressure against them, so they need a single source.

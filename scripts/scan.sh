@@ -23,10 +23,10 @@ fi
 echo
 echo "## Size pressure"
 echo
-echo "Files at 80% of their limit or more; split them before they reach it."
+echo "Files at 90% of their limit or more; split them before they reach it."
 echo
 pressure() { # <file> <lines> <limit>
-  (($2 * 100 >= $3 * 80)) && echo "- \`$1\`: $2 of $3 lines"
+  (($2 * 100 >= $3 * 90)) && echo "- \`$1\`: $2 of $3 lines"
 }
 found=false
 pressure AGENTS.md "$(wc -l <AGENTS.md | tr -d ' ')" "$AGENTS_MAX_LINES" && found=true
