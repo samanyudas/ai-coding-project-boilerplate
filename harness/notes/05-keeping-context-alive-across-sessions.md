@@ -22,6 +22,7 @@ The workflow: session starts → read state files → verify repo → continue w
 ## Repo changes
 
 - `PROGRESS.md`: reshaped into In progress, Next steps, Blockers, Done, and Test status.
+  Superseded by [07](07-why-agents-overreach-and-under-finish.md): In progress, Next steps, Blockers, and Done became one Tasks list with a status per task.
 - `DECISIONS.md`: created, with a fixed entry shape that `scripts/verify.sh` checks.
 - `scripts/restore-state.sh`: created; prints `PROGRESS.md`, the `DECISIONS.md` headings, and the git checkpoint, and flags uncommitted changes.
 - `.claude/settings.json`: created; a `SessionStart` hook that runs `scripts/restore-state.sh` on every start, including after compaction.
@@ -55,6 +56,7 @@ The useful state is what sits outside the gate: tests that fail outside it, and 
 Why `PROGRESS.md` has a Done list despite git history:
 the chapter asks for it, and a short list of what the current focus has finished saves reading the log.
 It is cleared when the focus moves on, so it cannot become the sediment chapter 2 warned about.
+Superseded by [07](07-why-agents-overreach-and-under-finish.md): finished work is a `passing` task, removed once the focus moves on.
 
 Why the `DECISIONS.md` check spells out `[0-9][0-9][0-9][0-9]` instead of `[0-9]{4}`:
 CI runs on Ubuntu, whose default `awk` (mawk) may not support interval expressions.

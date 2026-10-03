@@ -37,6 +37,7 @@ For an app you also use daily, keep the stable version for regular use and make 
 - `scripts/setup.sh`: records an environment fingerprint through `scripts/check-ready.sh --record`.
 - `scripts/restore-state.sh`: appends the readiness result, so Claude Code sessions see it at start and after compaction.
 - `PROGRESS.md`: Next steps holds tasks in a fixed shape with acceptance criteria.
+  Superseded by [07](07-why-agents-overreach-and-under-finish.md): tasks moved to a Tasks section and each carries a status.
 - `scripts/verify.sh`: fails on a task without acceptance criteria.
 - `.github/workflows/verify.yml`: runs `scripts/check-ready.sh` after setup, which proves setup records the fingerprint.
 - `README.md`: Start a project now describes initialization.

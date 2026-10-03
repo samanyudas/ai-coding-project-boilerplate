@@ -110,14 +110,24 @@ check_decisions() {
   ' DECISIONS.md
 }
 
-# Every task under Next steps in PROGRESS.md needs acceptance criteria, so done is checkable.
+# Tasks in PROGRESS.md: a known status, a bold title, acceptance criteria, a reason when
+# blocked, and WIP = 1, so at most one task is active.
 check_tasks() {
   awk '
-    /^## / { inside = ($0 == "## Next steps"); next }
-    inside && /^- / && index($0, "Acceptance:") == 0 {
-      printf "PROGRESS.md: task without acceptance criteria: %s\n", $0 > "/dev/stderr"; bad = 1
+    function fail(msg) { printf "PROGRESS.md: %s: %s\n", msg, $0 > "/dev/stderr"; bad = 1 }
+    /^## / { inside = ($0 == "## Tasks"); next }
+    inside && /^- / {
+      if ($0 !~ /^- `(not_started|active|blocked|passing)` \*\*[^*]+\*\* /) { fail("task must open with a status and a bold title"); next }
+      if (index($0, "Acceptance:") == 0) fail("task without acceptance criteria")
+      if ($0 ~ /^- `blocked`/ && index($0, "Blocked by:") == 0) fail("blocked task without \"Blocked by:\"")
+      if ($0 ~ /^- `active`/) active++
     }
-    END { exit bad }
+    END {
+      if (active > 1) {
+        printf "PROGRESS.md: %d tasks are active, and WIP = 1 allows one. Set the others back to not_started or blocked.\n", active > "/dev/stderr"; bad = 1
+      }
+      exit bad
+    }
   ' PROGRESS.md
 }
 

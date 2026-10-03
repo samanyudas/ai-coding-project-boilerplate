@@ -10,6 +10,7 @@ How tests are written and run.
 ## Hard constraints
 
 - Every new or changed behaviour gets a test that fails without the change and passes with it.
+- A task becomes `passing` only when a test checks its acceptance criteria end to end, through the interface a user or caller would use.
 - Test behaviour through public interfaces, so a refactor that keeps behaviour keeps the tests green.
 - Tests are deterministic: they control time, randomness, network, and ordering.
 A flaky test is a bug; fix it when you see it.

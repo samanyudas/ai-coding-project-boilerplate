@@ -4,28 +4,22 @@ The state handoff between sessions; `scripts/restore-state.sh` prints it at sess
 Update it in the same commit as each completed unit of work, so a session that ends or compacts loses nothing.
 It holds where things stand; git history holds the full record.
 
-## In progress
+## Tasks
 
-TODO(project): The unit of work underway, and how far it got.
-
-## Next steps
-
-Ordered tasks, each small enough to finish, verify, and commit in one session; take the first.
-Each is one line in this shape, and `scripts/verify.sh` checks for the acceptance criteria:
-`- [ ] **Title.** Acceptance: the observable result, and how it is checked.`
+WIP = 1: one task is `active` at a time; finish, verify, and commit it before starting the next.
+Anything else you notice along the way goes in as a new `not_started` task, not into the active one.
+Order is priority, so take the first `not_started` task, and remove `passing` tasks once the focus moves on.
+Each task is one line in this shape; `scripts/verify.sh` checks the shape, the status, and that at most one task is `active`:
+`` - `status` **Title.** Acceptance: the observable result, and how it is checked. ``
+Statuses: `not_started`, `active`, `blocked` (add "Blocked by:" and what it waits on), and `passing`.
 
 TODO(project): The first tasks, written during initialization.
 
-## Blockers
+## Active task notes
 
-None.
+How far the active task got, what was tried, and what is left. Clear it when the task passes.
 
-## Done
-
-Units finished since the current focus began, newest first, each with its commit.
-Clear this list when the focus moves on.
-
-- None yet.
+TODO(project): Notes on the active task, or "No active task."
 
 ## Test status
 

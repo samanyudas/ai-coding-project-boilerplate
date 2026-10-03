@@ -18,7 +18,7 @@ TODO(project): What this project is, who it is for, and what it must do, in one 
 1. Restore state: `scripts/restore-state.sh` prints progress, decision headings, the git checkpoint, and environment readiness (Claude Code runs it for you at session start and after compaction).
 Resolve any uncommitted changes it reports before anything else.
 2. When it reports the environment not ready, run `scripts/setup.sh`; setup repeats only when the environment changed.
-3. Take the first task under Next steps in `PROGRESS.md`, move it to In progress, and restate it as a concrete goal (the input, the behaviour, the output, and how you will verify it); ask when any of those is open.
+3. Continue the `active` task in `PROGRESS.md`, or mark the first `not_started` one `active`, and restate it as a concrete goal (the input, the behaviour, the output, and how you will verify it); ask when any of those is open.
 "Add search" is not a goal yet; "case-insensitive title search on `GET /posts?q=`, newest first, covered by an API test" is.
 4. Run the project: TODO(project): the command that starts it, and how to reach it (URL, CLI usage).
 
@@ -37,16 +37,17 @@ Rules for every task. At most 15; `scripts/verify.sh` enforces the limit.
 2. Write code against the exact versions in Tech stack.
 3. Commit only through the pre-commit hook, with `scripts/verify.sh` passing.
 4. Commit each unit of work as soon as it is done and verified, with its code, tests, docs, and updated `PROGRESS.md`, so compaction or a crash never loses finished work. Discard a failed attempt with `git restore` or by dropping its branch.
-5. Work on your own branch, in your own worktree when other agents share the repo, and merge only finished, verified work.
-6. Keep secrets out of tracked files.
-7. TODO(project): Project-wide hard constraints, one per line, each with its reason.
+5. Work on one task at a time: the `active` one in `PROGRESS.md`. Record anything else you notice as a new `not_started` task instead of doing it now.
+6. WIP = 1 is per agent: parallel agents each take a different, independent task, on their own branch in their own worktree, and merge only finished, verified work.
+7. Keep secrets out of tracked files.
+8. TODO(project): Project-wide hard constraints, one per line, each with its reason.
 
 ## Repo map
 
 `scripts/verify.sh` fails when a listed path is missing, or when a top-level entry, a file in `docs/`, or a module doc is unlisted.
 Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 
-- `PROGRESS.md` - Done, in progress, blockers, next steps, and test status. Update with every commit.
+- `PROGRESS.md` - Tasks with their status (one `active` at a time), active task notes, and test status. Update with every commit.
 - `DECISIONS.md` - Project-wide decisions with their reasons and rejected alternatives. Open entries that bear on your task.
 - `docs/initialization.md` - The one-time setup of a new project. Read when given a project idea.
 - `docs/conventions.md` - Architecture and code rules. Read before writing code.
@@ -88,8 +89,8 @@ Then put it in the first place that fits, in the same commit as the change it de
 
 Check every item before calling a task done:
 
-- [ ] The goal you restated is met, exercised on the real artifact (ran the app, called the endpoint, ran the CLI).
+- [ ] The goal you restated is met, exercised end to end on the real artifact (ran the app, called the endpoint, ran the CLI).
 - [ ] New or changed behaviour is covered by a test.
 - [ ] `scripts/verify.sh` passes: TODO(project): list the format, lint, type-check, test, and build commands it runs.
-- [ ] `PROGRESS.md` is current, and new knowledge is written where the table above puts it.
+- [ ] The task is marked `passing` in `PROGRESS.md`, and new knowledge is written where the table above puts it.
 - [ ] The finished unit is committed, with a message that says why.

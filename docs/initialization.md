@@ -30,7 +30,7 @@ Break something on purpose and confirm `scripts/verify.sh` fails.
 Fill every remaining `TODO(project)` slot: conventions, security, tools, and hard constraints.
 Where a slot does not apply yet, write that and why.
 6. **Tasks.**
-Break the idea into small tasks under Next steps in `PROGRESS.md`, ordered, each one finishable, verifiable, and committable in one session.
+Break the idea into small, independently verifiable tasks under Tasks in `PROGRESS.md`, all `not_started`, in priority order, each finishable, verifiable, and committable in one session.
 Give each task acceptance criteria: the observable result and how it is checked.
 `scripts/verify.sh` checks that every task has them.
 7. **Checkpoint.**
