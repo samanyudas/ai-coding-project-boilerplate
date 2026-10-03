@@ -4,12 +4,20 @@ set -euo pipefail
 shopt -s nullglob
 cd "$(dirname "$0")/.."
 
+# Limits. Raise one only after trying to split the file it guards.
 AGENTS_MAX_LINES=100
+DOC_MAX_LINES=150
+HARD_CONSTRAINTS_MAX=15
+
 TODO_MARKER="TODO(project)"
 
+section() {
+  awk -v heading="## $1" '/^## /{inside = ($0 == heading); next} inside' AGENTS.md
+}
+
+# Every backticked path before the " - " on each repo map line.
 map_paths() {
-  awk '/^## /{in_map = ($0 == "## Repo map"); next} in_map && /^- `/' AGENTS.md |
-    sed -E 's/^- `([^`]+)`.*/\1/'
+  section "Repo map" | grep '^- `' | sed -E 's/ - .*//' | grep -oE '`[^`]+`' | tr -d '`'
 }
 
 module_docs() {
@@ -46,11 +54,31 @@ check_repo_map() {
   return "$ok"
 }
 
-check_agents_length() {
-  local lines
-  lines="$(wc -l <AGENTS.md | tr -d ' ')"
-  if ((lines > AGENTS_MAX_LINES)); then
-    echo "AGENTS.md: $lines lines, limit is $AGENTS_MAX_LINES. Move detail into docs/ and point to it from the repo map." >&2
+check_max_lines() {
+  local file="$1" max="$2" lines
+  lines="$(wc -l <"$file" | tr -d ' ')"
+  if ((lines > max)); then
+    echo "$file: $lines lines, limit is $max. Split it by topic and link the parts from the repo map." >&2
+    return 1
+  fi
+}
+
+check_doc_sizes() {
+  local ok=0 doc
+  check_max_lines AGENTS.md "$AGENTS_MAX_LINES" || ok=1
+  while IFS= read -r doc; do
+    if [[ -n "$doc" ]]; then
+      check_max_lines "$doc" "$DOC_MAX_LINES" || ok=1
+    fi
+  done <<<"$(printf '%s\n' docs/*.md; module_docs)"
+  return "$ok"
+}
+
+check_hard_constraints() {
+  local count
+  count="$(section "Hard constraints" | grep -cE '^[0-9]+\. ' || true)"
+  if ((count > HARD_CONSTRAINTS_MAX)); then
+    echo "AGENTS.md: $count hard constraints, limit is $HARD_CONSTRAINTS_MAX. Move topic or module rules to their docs, and tool-checkable ones into checks." >&2
     return 1
   fi
 }
@@ -74,8 +102,10 @@ run_project_checks() {
 
 echo "==> repo map"
 check_repo_map
-echo "==> AGENTS.md length"
-check_agents_length
+echo "==> doc sizes"
+check_doc_sizes
+echo "==> hard constraints"
+check_hard_constraints
 echo "==> project slots"
 check_todo_slots
 echo "==> project checks"

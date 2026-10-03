@@ -1,8 +1,7 @@
 # AGENTS.md
 
-The map for agents working in this repository.
-Read it at the start of every session, then read each doc it points to when that doc's condition applies.
-The repo is the single source of truth: you know only your task, the files here, and tool output, so anything that matters lives in a file here.
+The entry point for agents in this repository, read at the start of every session.
+Task arrives → read this file → open only the docs the repo map links for that task → read the code → make the change → verify.
 
 ## Starting a project from this boilerplate
 
@@ -17,84 +16,83 @@ When `harness/` exists and you are changing the boilerplate itself, read `harnes
 
 TODO(project): What this project is, who it is for, and what it must do, in one paragraph.
 
-## Run
+## Quick start
 
-TODO(project): The command that starts the project, and how to reach it (URL, CLI usage).
+1. Run `scripts/setup.sh`; if it fails, fix the setup in the repo before starting the task.
+2. Read `PROGRESS.md` to pick up where the last session stopped.
+3. Restate the task as a concrete goal (the input, the behaviour, the output, and how you will verify it), and ask when any of those is open.
+"Add search" is not a goal yet; "case-insensitive title search on `GET /posts?q=`, newest first, covered by an API test" is.
+4. Run the project: TODO(project): the command that starts it, and how to reach it (URL, CLI usage).
+5. Verify with `scripts/verify.sh`.
 
 ## Tech stack
-
-Write code against these exact versions, not whichever version is most common.
 
 - TODO(project): Language and version.
 - TODO(project): Framework and version.
 - TODO(project): Key libraries and versions, with the API style to use (e.g. SQLAlchemy 2.0 `select()`, not 1.x `query()`).
 - TODO(project): Runtime version, pinned in a file (e.g. `.nvmrc`, `.python-version`).
 
-## Session start
+## Hard constraints
 
-1. Run `scripts/setup.sh`; if it fails, fix the setup in the repo before starting the task.
-2. Read `PROGRESS.md` to pick up where the last session stopped.
-3. Work on your own branch, in your own worktree (`git worktree add`) when other agents share the repo.
-Merge only finished, verified work.
-4. Restate the task as a concrete goal (the input, the behaviour, the output, and how you will verify it), and ask when any of those is open.
-"Add search" is not a goal yet; "case-insensitive title search on `GET /posts?q=`, newest first, covered by an API test" is.
+Rules for every task. At most 15; `scripts/verify.sh` enforces the limit.
+
+1. The repo is the single source of truth: you know only your task, the files here, and tool output, so anything that matters is written into a file here.
+2. Write code against the exact versions in Tech stack.
+3. Commit only through the pre-commit hook, with `scripts/verify.sh` passing.
+4. One commit holds one whole change: its code, tests, and docs. Discard a failed attempt with `git restore` or by dropping its branch.
+5. Work on your own branch, in your own worktree when other agents share the repo, and merge only finished, verified work.
+6. Keep secrets out of tracked files.
+7. TODO(project): Project-wide hard constraints, one per line, each with its reason.
 
 ## Repo map
 
 `scripts/verify.sh` fails when a listed path is missing, or when a top-level entry, a file in `docs/`, or a module doc is unlisted.
 Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 
-- `AGENTS.md` - This map. Stays under 100 lines; detail goes in `docs/` or module docs.
-- `CLAUDE.md` - Imports this file for Claude Code.
-- `README.md` - Human-facing overview.
 - `PROGRESS.md` - Where the work stands. Read at session start; update before you stop.
-- `docs/conventions.md` - Code and documentation rules. Read before writing code or docs.
-- `docs/tools.md` - Which tools agents use and how to add one. Read before adding a tool, MCP server, or script.
-- `docs/harness-audit.md` - How to audit and ablation-test the harness. Read when asked to audit, or when agent results get worse.
+- `docs/conventions.md` - Architecture and code rules. Read before writing code.
+- `docs/testing.md` - How tests are written and run. Read before writing or changing tests.
+- `docs/security.md` - Secrets, credentials, and untrusted input. Read before touching any of them.
+- `docs/tools.md` - Which tools agents use. Read before adding a tool, MCP server, or script.
+- `docs/documentation.md` - How docs are structured and sized. Read before writing any doc, this one included.
+- `docs/harness-audit.md` - Auditing and measuring the harness. Read when asked to audit, or when agent results get worse.
 - `scripts/setup.sh` - Takes a fresh clone to a working environment. Safe to re-run.
-- `scripts/verify.sh` - The one verification command.
-- `scripts/check-module-docs.sh` - Warns when a module changed but its docs did not. Run by the hook and CI.
-- `.githooks/pre-commit` - Runs both scripts above before every commit. Enabled by `scripts/setup.sh`.
-- `.github/workflows/verify.yml` - Runs both scripts above in CI on every push and pull request.
+- `scripts/verify.sh` - The one verification command. Its limits are set at the top of the file.
+- `scripts/check-module-docs.sh` - Warns when a module changed but its docs did not.
+- `.githooks/pre-commit` - Runs `verify.sh` and `check-module-docs.sh` before every commit.
+- `.github/workflows/verify.yml` - Runs the same two scripts in CI on every push and pull request.
+- `.github/workflows/harness-audit.yml` - Opens a harness audit issue on the 1st of each month.
+- `AGENTS.md`, `CLAUDE.md` - This file, and its import for Claude Code.
+- `README.md` - Human-facing overview.
 - `assets/` - Static assets such as the project icon.
 - `harness/` - Notes and reasons behind this boilerplate. Delete when starting a project.
 
-## Where knowledge goes
+## Adding a rule or knowledge
 
-Write anything a future session needs, including context from chats, tickets, or outside docs, into one of these files, in the same commit as the change it describes:
+Search for an existing rule on the same subject first, and change it rather than adding one that conflicts.
+Then put it in the first place that fits, in the same commit as the change it describes:
 
-- Where the work stands, and what is blocked: `PROGRESS.md`.
-- A module's design decisions and their reasons: `ARCHITECTURE.md` in that module's directory.
-- A module's hard rules: `CONSTRAINTS.md` in that module's directory.
-- Project-wide code rules: `docs/conventions.md`.
-- Commands, stack, and structure: this file.
-
-Add each module doc to the repo map, and read it before changing that module.
-
-## Verification
-
-`scripts/verify.sh` runs every check and exits non-zero when one fails.
-The pre-commit hook and CI run it too, so a failing check blocks the commit and the merge.
-It checks:
-
-- The repo map, the 100-line limit on this file, and unfilled `TODO(project)` slots once `harness/` is gone.
-- TODO(project): The format, lint, type-check, test, and build commands, one per line.
-
-Every new check goes into `scripts/verify.sh`, so one command keeps covering everything.
-
-## Definition of Done
-
-- The goal you restated at session start is met, and you have exercised it on the real artifact (ran the app, called the endpoint, ran the CLI).
-- New or changed behaviour is covered by a test, and `scripts/verify.sh` passes.
-- What a future session needs is written down, as set out under Where knowledge goes.
-- Code, tests, and docs land together in one commit whose message says why.
-A failed attempt is discarded with `git restore` or by dropping its branch, so the repo never holds half a change.
+| What it is | Where it goes |
+| --- | --- |
+| Checkable by a tool | A test, a lint rule, or a check in `scripts/verify.sh` |
+| True for every task | Hard constraints above |
+| About one topic (API, database, security, testing) | `docs/<topic>.md`, linked in the repo map |
+| About one module | That module's `ARCHITECTURE.md` or `CONSTRAINTS.md`, linked in the repo map |
+| About specific code | Types, interfaces, and comments in the source |
+| Where the work stands | `PROGRESS.md` |
 
 ## When something fails
 
-Look for the harness gap before switching the model or retrying.
-
 1. Name which part of the harness failed: instructions, tools, environment, state, or feedback.
-2. Ask why it failed.
-3. Fix that part in the repo, as an executable rule where possible: a check in `scripts/verify.sh`, a hook, or a CI step.
-4. Re-run the task.
+2. Ask why it failed, and fix that part in the repo, as an executable rule where possible.
+3. Re-run the task.
+
+## Definition of Done
+
+Check every item before calling a task done:
+
+- [ ] The goal you restated is met, exercised on the real artifact (ran the app, called the endpoint, ran the CLI).
+- [ ] New or changed behaviour is covered by a test.
+- [ ] `scripts/verify.sh` passes: TODO(project): list the format, lint, type-check, test, and build commands it runs.
+- [ ] New knowledge is written where the table above puts it, and `PROGRESS.md` is current.
+- [ ] One commit holds the change, with a message that says why.

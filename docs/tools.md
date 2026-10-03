@@ -10,7 +10,8 @@ Agents get the tools the job needs, and no more.
 ## Adding a tool
 
 - **Least privilege.**
-Grant the narrowest access that does the job: read-only database users, scoped tokens, no production credentials in development.
+A tool gets only the access its job needs, such as a read-only mode or a scoped token.
+Credentials follow `docs/security.md`.
 - **Tool budget.**
 Every tool and MCP server description is loaded on every turn, whether or not it is used.
 Ten focused tools beat fifty overlapping ones.

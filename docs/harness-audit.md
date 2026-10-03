@@ -2,6 +2,7 @@
 
 The harness rots like code does.
 Audit it monthly, and whenever agent results get worse, then pay down what you find the same way you pay down technical debt.
+`.github/workflows/harness-audit.yml` opens an issue on the 1st of each month as the reminder.
 
 ## Checklist
 
@@ -9,8 +10,10 @@ Audit it monthly, and whenever agent results get worse, then pay down what you f
 List every tool, MCP server, plugin, and hook configured for this project.
 Uninstall each one no recent task used, and keep `docs/tools.md` in sync.
 2. **Instructions.**
-Read `AGENTS.md` and `docs/` against the code.
-Fix or delete every line that is stale, that the agent follows without being told, or that a check now enforces.
+Read `AGENTS.md` and every linked doc against the code.
+Fix or delete every rule that is stale, duplicated, or in conflict with another, that the agent follows without being told, or that a check now enforces.
+Move each hard constraint that is not truly global into its topic or module doc.
+Split any doc near its size limit by topic.
 3. **Executable rules.**
 For each written rule agents still break, add a check in `scripts/verify.sh`, a hook, or a CI step.
 4. **Environment.**
@@ -30,19 +33,44 @@ Each answer must come from the repo, and match reality:
    - What is the current state?
 
    Every wrong or missing answer is a gap in `AGENTS.md`, `PROGRESS.md`, or a module doc; fix it there.
+8. **Log.**
+Record the findings and changes in the Audit log below, and close the month's issue.
 
-## Ablation test
+## Measuring a harness change
+
+Measuring costs real agent runs, so do it after a major restructure, when regressions appear, or periodically, not on every change.
+Both tests below use the same setup:
+
+- At least 5 representative tasks, each with a clear pass condition.
+- Repeated runs of each task, so a real difference stands out from run-to-run variation.
+
+### Ablation test
 
 Use this when unsure whether a part of the harness earns its cost.
 
-1. Pick 5 to 10 representative tasks, each with a clear pass condition.
-2. Run them with the full harness and record the success rate.
-3. Remove one part (a doc, a tool, a check), re-run, and record the success rate.
-4. Restore that part and repeat for the next one.
+1. Run the tasks with the full harness and record the success rate.
+2. Remove one part (a doc, a tool, a check), re-run, and record the success rate.
+3. Restore that part and repeat for the next one.
 
 A large drop means the part matters.
 No drop means the part costs context without helping: remove it or rework it.
 For example, if removing tests drops success from 85% to 55% and removing lint drops it to 82%, tests carry far more weight.
+
+### A/B test
+
+Use this to check that a restructure, such as splitting a doc, helped.
+Run the tasks on the old version and the new one, and compare:
+
+| Metric | Desired outcome |
+| --- | --- |
+| Input tokens | Decrease |
+| Runtime | Decrease |
+| Task success rate | Maintain or improve |
+| Constraint compliance | Maintain or improve |
+| Instruction signal-to-noise ratio | Increase |
+
+Signal-to-noise ratio is the relevant instructions loaded for a task divided by all instructions loaded for it.
+Keep the restructure only if success and compliance hold.
 
 ## Audit log
 

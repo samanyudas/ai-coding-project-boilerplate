@@ -60,6 +60,8 @@ The fresh session test maps to files:
 | How do I verify it? | `AGENTS.md` Verification |
 | What is the current state? | `PROGRESS.md` |
 
+Superseded by [04](04-split-instructions-across-files.md): Run became step 4 of Quick start.
+
 Why unfilled slots fail only after `harness/` is deleted:
 an unfilled slot in a started project is a fresh-session question with no answer.
 The boilerplate itself is all slots, so the check keys off the step that marks a project as started.
@@ -77,6 +79,7 @@ Why ACID is split across existing sections instead of getting its own:
 consistency is already the pre-commit hook, and durability is Where knowledge goes.
 Atomicity belongs in the Definition of Done and isolation in Session start, where each one applies.
 A separate section would have restated rules that already exist and pushed `AGENTS.md` over its 100-line limit, which happened in the first draft (111 lines) and the check caught it.
+Superseded by [04](04-split-instructions-across-files.md): atomicity and isolation are now Hard constraints, and Where knowledge goes became the Adding a rule or knowledge table.
 
 Why the start section now deletes itself:
 after a fork it never applies again, and a section that never applies is discovery cost on every session.

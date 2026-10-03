@@ -33,3 +33,4 @@ Boilerplate progress is tracked by the chapter index below.
 | 01 | [Why capable agents still fail](notes/01-why-capable-agents-still-fail.md) | `AGENTS.md`, `CLAUDE.md`, `scripts/verify.sh` |
 | 02 | [What a harness actually is](notes/02-what-a-harness-actually-is.md) | `AGENTS.md` split into `docs/`, `PROGRESS.md`, `scripts/setup.sh`, pre-commit hook, CI |
 | 03 | [Why the repository must be the single source of truth](notes/03-repo-as-single-source-of-truth.md) | Run and Where knowledge goes in `AGENTS.md`, module docs, `scripts/check-module-docs.sh`, unfilled-slot check, fresh session test |
+| 04 | [Split instructions across files](notes/04-split-instructions-across-files.md) | `AGENTS.md` reordered with hard constraints and a routing table, `docs/documentation.md`, `docs/testing.md`, `docs/security.md`, size and constraint limits, monthly audit issue |
