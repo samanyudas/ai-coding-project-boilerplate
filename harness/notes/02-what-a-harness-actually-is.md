@@ -80,6 +80,7 @@ a script can be run and tested, and the audit runs it in a fresh clone; a list o
 Why `PROGRESS.md` holds the current state, not a log:
 git already records what was done, with reasons in commit messages.
 A file that only grows becomes sediment that each session must read through.
+Superseded by [05](05-keeping-context-alive-across-sessions.md): `PROGRESS.md` gained a Done list, bounded to the current focus, and a Test status section.
 
 Why the failure protocol now names the five parts:
 they give a complete list to check, and each part has a single file to fix.

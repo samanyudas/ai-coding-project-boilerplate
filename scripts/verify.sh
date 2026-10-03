@@ -83,6 +83,33 @@ check_hard_constraints() {
   fi
 }
 
+# Each DECISIONS.md entry needs a dated heading and all four fields, so its reasoning survives.
+check_decisions() {
+  awk '
+    function finish() {
+      if (title == "") return
+      for (i = 1; i <= 4; i++) if (!(label[i] in seen)) {
+        printf "DECISIONS.md: \"%s\" is missing **%s:**\n", title, label[i] > "/dev/stderr"; bad = 1
+      }
+      delete seen
+    }
+    BEGIN { split("Decision Why Rejected Constraints", label, " ") }
+    /^```/ { fenced = !fenced; next }
+    fenced { next }
+    /^## / {
+      finish(); title = substr($0, 4)
+      if ($0 !~ /^## [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]: ./) {
+        printf "DECISIONS.md: heading \"%s\" must read \"YYYY-MM-DD: Title\"\n", title > "/dev/stderr"; bad = 1
+      }
+      next
+    }
+    title != "" {
+      for (i = 1; i <= 4; i++) if (index($0, "- **" label[i] ":**") == 1) seen[label[i]] = 1
+    }
+    END { finish(); exit bad }
+  ' DECISIONS.md
+}
+
 # A started project (harness/ deleted) must answer every slot, so a fresh session finds no gaps.
 check_todo_slots() {
   [[ -d harness ]] && return 0
@@ -106,6 +133,8 @@ echo "==> doc sizes"
 check_doc_sizes
 echo "==> hard constraints"
 check_hard_constraints
+echo "==> decisions"
+check_decisions
 echo "==> project slots"
 check_todo_slots
 echo "==> project checks"

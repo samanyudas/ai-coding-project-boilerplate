@@ -3,7 +3,7 @@
 # ai-coding-project-boilerplate
 
 A starting point for projects built with AI coding agents.
-It ships the harness an agent needs from the first session: instructions (`AGENTS.md`, `docs/`), state (`PROGRESS.md`), a reproducible setup (`scripts/setup.sh`), and one verification command (`scripts/verify.sh`) that also runs as a pre-commit hook and in CI.
+It ships the harness an agent needs from the first session: instructions (`AGENTS.md`, `docs/`), state (`PROGRESS.md`, `DECISIONS.md`, restored automatically after compaction), a reproducible setup (`scripts/setup.sh`), and one verification command (`scripts/verify.sh`) that also runs as a pre-commit hook and in CI.
 
 ## Start a project
 

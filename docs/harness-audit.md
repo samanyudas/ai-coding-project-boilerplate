@@ -1,10 +1,19 @@
 # Harness audit
 
 The harness rots like code does.
-Audit it monthly, and whenever agent results get worse, then pay down what you find the same way you pay down technical debt.
-`.github/workflows/harness-audit.yml` opens an issue on the 1st of each month as the reminder.
+Fix it when a task fails, audit it monthly and whenever agent results get worse, and pay down what you find the same way you pay down technical debt.
 
-## Checklist
+## When a task fails
+
+Look for the harness gap before switching the model or retrying.
+
+1. Name which part of the harness failed: instructions, tools, environment, state, or feedback.
+2. Ask why it failed, and fix that part in the repo, as an executable rule where possible: a check in `scripts/verify.sh`, a hook, or a CI step.
+3. Re-run the task.
+
+## Monthly checklist
+
+`.github/workflows/harness-audit.yml` opens an issue on the 1st of each month as the reminder.
 
 1. **Tools.**
 List every tool, MCP server, plugin, and hook configured for this project.
@@ -22,7 +31,7 @@ It must succeed with no manual steps.
 5. **Feedback.**
 Break something on purpose and confirm `scripts/verify.sh` fails.
 6. **State.**
-Confirm `PROGRESS.md` matches reality.
+Confirm `PROGRESS.md` matches reality, `DECISIONS.md` has no live decision missing, and `scripts/restore-state.sh` prints what a new session needs.
 7. **Fresh session test.**
 Start a new agent session with no prior context and ask it five questions.
 Each answer must come from the repo, and match reality:

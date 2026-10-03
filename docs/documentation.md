@@ -12,7 +12,7 @@ Everything else lives in the place the table in "Adding a rule or knowledge" nam
 - Every doc in `docs/` and every module doc is linked from the repo map, with the condition for reading it.
 An agent reads only what the map tells it exists.
 - Update a doc in the same commit as the code it describes.
-`scripts/check-module-docs.sh` warns when a module changed without its docs.
+`scripts/check-stale-docs.sh` warns when a module changed without its docs.
 
 ## Placing a doc
 

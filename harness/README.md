@@ -23,7 +23,7 @@ Tool-specific files such as `CLAUDE.md` only import it, so every agent tool read
 - Rationale lives here, not in `AGENTS.md`.
 `AGENTS.md` is loaded every session, so it holds only what changes the agent's behaviour.
 - Unfilled project slots are written `TODO(project)` so `rg 'TODO\(project\)'` lists everything a new project must fill in.
-- `PROGRESS.md` stays a template in the boilerplate, so every fork starts clean.
+- `PROGRESS.md` and `DECISIONS.md` stay templates in the boilerplate, so every fork starts clean.
 Boilerplate progress is tracked by the chapter index below.
 
 ## Chapters
@@ -34,3 +34,4 @@ Boilerplate progress is tracked by the chapter index below.
 | 02 | [What a harness actually is](notes/02-what-a-harness-actually-is.md) | `AGENTS.md` split into `docs/`, `PROGRESS.md`, `scripts/setup.sh`, pre-commit hook, CI |
 | 03 | [Why the repository must be the single source of truth](notes/03-repo-as-single-source-of-truth.md) | Run and Where knowledge goes in `AGENTS.md`, module docs, `scripts/check-module-docs.sh`, unfilled-slot check, fresh session test |
 | 04 | [Split instructions across files](notes/04-split-instructions-across-files.md) | `AGENTS.md` reordered with hard constraints and a routing table, `docs/documentation.md`, `docs/testing.md`, `docs/security.md`, size and constraint limits, monthly audit issue |
+| 05 | [Keeping context alive across sessions](notes/05-keeping-context-alive-across-sessions.md) | `PROGRESS.md` reshaped, `DECISIONS.md` with a format check, `scripts/restore-state.sh` and its Claude Code hook, `PROGRESS.md` reminder |

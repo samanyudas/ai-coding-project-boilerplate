@@ -1,18 +1,32 @@
 # Progress
 
-The handoff between sessions.
-Read it at session start, and update it before you stop or commit.
-It records where things stand now; git history records what was done.
-Replace finished items rather than appending to a log.
+The state handoff between sessions; `scripts/restore-state.sh` prints it at session start.
+Update it in the same commit as each completed unit of work, so a session that ends or compacts loses nothing.
+It holds where things stand; git history holds the full record.
 
-## Current focus
+## In progress
 
-TODO(project): What is being built right now, and why.
+TODO(project): The unit of work underway, and how far it got.
 
 ## Next steps
 
-TODO(project): The ordered next steps, each small enough to finish and verify in one session.
+TODO(project): The ordered next units, each small enough to finish, verify, and commit in one go.
 
-## Open questions and blockers
+## Blockers
 
 None.
+
+## Done
+
+Units finished since the current focus began, newest first, each with its commit.
+Clear this list when the focus moves on.
+
+- None yet.
+
+## Test status
+
+`scripts/verify.sh` passes at every commit; the pre-commit hook guarantees it.
+List here only what that gate does not show:
+
+- **Failing:** None. (Tests outside the gate that fail, with why.)
+- **Pending:** None. (Tests skipped or not yet written, and what they wait on.)

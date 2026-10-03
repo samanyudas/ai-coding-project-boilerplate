@@ -74,6 +74,7 @@ Listing it in the map puts it one read away from session start.
 Why the stale-doc check warns instead of failing:
 not every code change invalidates its module doc, so a hard gate would train agents to make empty doc edits to pass it.
 A warning at commit time and in CI prompts the check the chapter asks for, and the agent sees it in the hook output.
+Superseded by [05](05-keeping-context-alive-across-sessions.md): the script is now `scripts/check-stale-docs.sh` and also warns when `PROGRESS.md` is left behind.
 
 Why ACID is split across existing sections instead of getting its own:
 consistency is already the pre-commit hook, and durability is Where knowledge goes.

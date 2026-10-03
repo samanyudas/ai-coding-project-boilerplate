@@ -56,6 +56,7 @@ Run merged into Quick start, Verification merged into the checklist, and Where k
 Why `AGENTS.md` is ordered top, middle, bottom:
 Quick start and Hard constraints come first because every task needs them, and the Definition of Done comes last as a checklist because it is the final step.
 The middle holds the repo map and routing table, which are looked up, not read in order.
+Superseded by [05](05-keeping-context-alive-across-sessions.md): the failure protocol moved to `docs/harness-audit.md` to make room for the state files.
 
 Why the routing table puts "checkable by a tool" first:
 the agent picks the first place that fits, so an enforceable rule never lands in prose.
