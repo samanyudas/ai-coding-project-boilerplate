@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The single verification command: the Definition of Done, checked in levels.
 #   0 harness            the repo's own rules: map, doc sizes, constraints, decisions, features,
-#                        architecture file, slots, temporary debug code
+#                        architecture file, slots, temporary debug code, graph paths
 #   1 static             architecture rules, format, lint, type-check
 #   2 tests and startup  unit and integration tests, and the project starts
 #   3 end to end         every passing feature's end-to-end flow, re-run
@@ -181,6 +181,20 @@ reverify_features() {
   return "$ok"
 }
 
+# docs/graph.md describes the process; every path it names must exist, so the graph cannot drift from the code silently.
+check_graph() {
+  local token path ok=0
+  while IFS= read -r token; do
+    path="${token%% *}"
+    [[ "$path" =~ ^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)+/?$ || "$path" =~ ^[A-Za-z0-9._-]+\.(md|json|sh|yml)$ ]] || continue
+    [[ -e "${path%/}" ]] && continue
+    git check-ignore -q "${path%/}" && continue # created at runtime, such as .harness/runs/
+    echo "docs/graph.md names '$path', which does not exist, so the graph no longer matches the code. Fix the graph or the code." >&2
+    ok=1
+  done < <(grep -oE '`[^`]+`' docs/graph.md | tr -d '`' | sort -u)
+  return "$ok"
+}
+
 # Temporary debug code is marked so it cannot be forgotten; none may reach a commit.
 check_temp_markers() {
   local hits
@@ -309,7 +323,7 @@ run_level() {
   fi
 }
 
-run_level 0 "harness" check_repo_map check_doc_sizes check_hard_constraints check_decisions check_features check_architecture_file check_todo_slots check_temp_markers
+run_level 0 "harness" check_repo_map check_doc_sizes check_hard_constraints check_decisions check_features check_architecture_file check_todo_slots check_temp_markers check_graph
 run_level 1 "static" check_architecture run_static
 run_level 2 "tests and startup" run_tests run_startup
 run_level 3 "end to end" reverify_features

@@ -12,8 +12,9 @@ TODO(project): Add the browser or computer-use tools this project's interface ne
 
 ## Inputs
 
-The feature id you were given.
+Only the feature id.
 Its contract is in `docs/features.json`: the `behavior` (what it must do) and the `verify` command (the scripted proof that already passed).
+If the caller also tells you what it built, how, or what to check, disregard it: judge the code and the running project as they are, so your review stays independent of the implementer's reasoning.
 
 ## Steps
 

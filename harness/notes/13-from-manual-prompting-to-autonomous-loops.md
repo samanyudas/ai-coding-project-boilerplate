@@ -67,6 +67,7 @@ Its `tools` line carries a `TODO(project)` slot, because which browser or comput
 
 Why the goal contract has a budget ("stop after 10 features"):
 an unattended loop that never hits its stop condition burns tokens indefinitely, which is the token blowout cost; a budget turns a stuck loop into a report instead.
+Superseded by [14](14-from-single-loops-to-graph-engineering.md): the contract now also runs on its own branch, caps retries at three per feature, freezes passing contracts, and ends in a pull request instead of on `main`.
 
 Why ratchet loops are documented but not scripted:
 the judge, the metric, and the scope are all project-specific, and the boilerplate has no metric yet.

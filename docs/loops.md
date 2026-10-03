@@ -18,10 +18,11 @@ Pick the loop by asking whether the work has an end:
 The goal contract for this repo, ready to paste:
 
 ```text
-/goal Work through docs/features.json in priority order, one feature at a time.
-For each: scripts/feature.sh start <id>; implement it; scripts/feature.sh verify <id>; ask the evaluator subagent to walk it and record its report in PROGRESS.md; fix and repeat until the verdict is PASS; then commit.
-If a feature cannot pass, scripts/feature.sh block <id> "<reason>" and move to the next.
-Done when `scripts/feature.sh remaining` exits 0 and `scripts/end-session.sh` passes. Stop after 10 features either way, and report what is left.
+/goal On a new branch loop/<today's date>, work through docs/features.json in priority order, one feature at a time.
+For each: scripts/feature.sh start <id>; implement it; scripts/feature.sh verify <id>; give the evaluator subagent only the feature id, and record its report in PROGRESS.md; fix and repeat until the verdict is PASS; then commit.
+After three failed attempts on the same cause, discard the attempt, scripts/feature.sh block <id> "<reason>", and move to the next.
+Never change the behavior or verify of a passing feature.
+Done when `scripts/feature.sh remaining` exits 0 and `scripts/end-session.sh` passes. Stop after 10 features either way, push the branch, open a pull request for review, and report what is left. Do not merge it.
 ```
 
 ## Hard constraints
@@ -30,6 +31,9 @@ Done when `scripts/feature.sh remaining` exits 0 and `scripts/end-session.sh` pa
 - The maker never grades its own work: scripts judge what they can (`scripts/verify.sh`, `scripts/feature.sh verify`), and an independent evaluator (the `evaluator` subagent in `.claude/agents/evaluator.md`, a fresh session, or another model) judges the rest. Someone in the loop must not believe the agent.
 - State lives on disk, never only in a session: each iteration reads `docs/features.json` and `PROGRESS.md` and leaves them current, so any run can stop and the next can resume.
 - Parallel loops each get their own branch and worktree (hard constraint 5).
+
+The full routing (who goes first, retries, rollbacks, the human pause before merge) is drawn in `docs/graph.md`.
+Run no more loops in parallel than you can review: your review is the serial lock.
 
 ## The six primitives here
 
