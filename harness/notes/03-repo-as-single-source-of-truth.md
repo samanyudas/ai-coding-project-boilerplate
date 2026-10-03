@@ -84,6 +84,7 @@ Superseded by [04](04-split-instructions-across-files.md): atomicity and isolati
 
 Why the start section now deletes itself:
 after a fork it never applies again, and a section that never applies is discovery cost on every session.
+Superseded by [06](06-initialization-as-its-own-phase.md): the start section became a pointer to `docs/initialization.md`, and both are deleted when initialization ends.
 
 Not added: a `Makefile`.
 `scripts/setup.sh` and `scripts/verify.sh` already standardize the commands, and a second entry point would be a second source of truth.

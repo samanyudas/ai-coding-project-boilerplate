@@ -3,14 +3,11 @@
 The entry point for agents in this repository, read at the start of every session.
 Task arrives → read this file → open only the docs the repo map links for that task → read the code → make the change → verify.
 
-## Starting a project from this boilerplate
+## Initialization
 
-1. Fill every `TODO(project)` slot (`rg 'TODO\(project\)'` lists them) from the idea you were given.
-Ask about anything the idea leaves open, and record each choice it settles, such as the stack, in `DECISIONS.md`.
-2. Delete `harness/`, its line in the repo map, and this section.
-3. Run `scripts/setup.sh`, then `scripts/verify.sh`, and commit.
-
-When `harness/` exists and you are changing the boilerplate itself, read `harness/README.md` first.
+This repo is not initialized yet.
+Given a project idea, follow `docs/initialization.md` before any feature work; its last steps delete this section.
+When you are changing the boilerplate itself instead, read `harness/README.md` first.
 
 ## Project
 
@@ -18,13 +15,12 @@ TODO(project): What this project is, who it is for, and what it must do, in one 
 
 ## Quick start
 
-1. Run `scripts/setup.sh`; if it fails, fix the setup in the repo before starting the task.
-2. Restore state: run `scripts/restore-state.sh` (Claude Code runs it for you at session start and after compaction).
+1. Restore state: `scripts/restore-state.sh` prints progress, decision headings, the git checkpoint, and environment readiness (Claude Code runs it for you at session start and after compaction).
 Resolve any uncommitted changes it reports before anything else.
-3. Run `scripts/verify.sh` to confirm the repo is healthy before you change it.
-4. Restate the task as a concrete goal (the input, the behaviour, the output, and how you will verify it), and ask when any of those is open.
+2. When it reports the environment not ready, run `scripts/setup.sh`; setup repeats only when the environment changed.
+3. Take the first task under Next steps in `PROGRESS.md`, move it to In progress, and restate it as a concrete goal (the input, the behaviour, the output, and how you will verify it); ask when any of those is open.
 "Add search" is not a goal yet; "case-insensitive title search on `GET /posts?q=`, newest first, covered by an API test" is.
-5. Run the project: TODO(project): the command that starts it, and how to reach it (URL, CLI usage).
+4. Run the project: TODO(project): the command that starts it, and how to reach it (URL, CLI usage).
 
 ## Tech stack
 
@@ -52,6 +48,7 @@ Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 
 - `PROGRESS.md` - Done, in progress, blockers, next steps, and test status. Update with every commit.
 - `DECISIONS.md` - Project-wide decisions with their reasons and rejected alternatives. Open entries that bear on your task.
+- `docs/initialization.md` - The one-time setup of a new project. Read when given a project idea.
 - `docs/conventions.md` - Architecture and code rules. Read before writing code.
 - `docs/testing.md` - How tests are written and run. Read before writing or changing tests.
 - `docs/security.md` - Secrets, credentials, and untrusted input. Read before touching any of them.
@@ -59,7 +56,8 @@ Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 - `docs/documentation.md` - How docs are structured and sized. Read before writing any doc, this one included.
 - `docs/harness-audit.md` - Fixing, auditing, and measuring the harness. Read when a task fails, when asked to audit, or when results get worse.
 - `scripts/setup.sh` - Takes a fresh clone to a working environment. Safe to re-run.
-- `scripts/restore-state.sh` - Prints the saved state a new or compacted session needs.
+- `scripts/check-ready.sh` - Fast check that the environment still matches the last setup.
+- `scripts/restore-state.sh` - Prints the saved state and readiness a new or compacted session needs.
 - `scripts/verify.sh` - The one verification command. Its limits are set at the top of the file.
 - `scripts/check-stale-docs.sh` - Warns when a change leaves `PROGRESS.md` or a module doc behind.
 - `.githooks/pre-commit` - Runs `verify.sh` and `check-stale-docs.sh` before every commit.

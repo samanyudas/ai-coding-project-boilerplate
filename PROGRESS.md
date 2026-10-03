@@ -10,7 +10,11 @@ TODO(project): The unit of work underway, and how far it got.
 
 ## Next steps
 
-TODO(project): The ordered next units, each small enough to finish, verify, and commit in one go.
+Ordered tasks, each small enough to finish, verify, and commit in one session; take the first.
+Each is one line in this shape, and `scripts/verify.sh` checks for the acceptance criteria:
+`- [ ] **Title.** Acceptance: the observable result, and how it is checked.`
+
+TODO(project): The first tasks, written during initialization.
 
 ## Blockers
 

@@ -110,6 +110,17 @@ check_decisions() {
   ' DECISIONS.md
 }
 
+# Every task under Next steps in PROGRESS.md needs acceptance criteria, so done is checkable.
+check_tasks() {
+  awk '
+    /^## / { inside = ($0 == "## Next steps"); next }
+    inside && /^- / && index($0, "Acceptance:") == 0 {
+      printf "PROGRESS.md: task without acceptance criteria: %s\n", $0 > "/dev/stderr"; bad = 1
+    }
+    END { exit bad }
+  ' PROGRESS.md
+}
+
 # A started project (harness/ deleted) must answer every slot, so a fresh session finds no gaps.
 check_todo_slots() {
   [[ -d harness ]] && return 0
@@ -135,6 +146,8 @@ echo "==> hard constraints"
 check_hard_constraints
 echo "==> decisions"
 check_decisions
+echo "==> tasks"
+check_tasks
 echo "==> project slots"
 check_todo_slots
 echo "==> project checks"

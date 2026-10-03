@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Prints the saved state a new or compacted session needs: PROGRESS.md, the
-# DECISIONS.md headings, and the git checkpoint. Read-only; safe to run anytime.
+# DECISIONS.md headings, the git checkpoint, and environment readiness.
+# Read-only; safe to run anytime.
 # Claude Code runs it at every session start, including after compaction.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -26,3 +27,7 @@ if [[ -n "$dirty" ]]; then
   echo "Finish and commit them as one unit, or discard them; do not build on them blindly:"
   echo "$dirty"
 fi
+echo
+echo "## Environment"
+echo
+scripts/check-ready.sh || true

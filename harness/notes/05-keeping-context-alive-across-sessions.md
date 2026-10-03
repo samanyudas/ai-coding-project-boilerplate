@@ -27,6 +27,7 @@ The workflow: session starts → read state files → verify repo → continue w
 - `.claude/settings.json`: created; a `SessionStart` hook that runs `scripts/restore-state.sh` on every start, including after compaction.
 - `scripts/check-module-docs.sh` renamed to `scripts/check-stale-docs.sh`; it now also warns when a commit in a started project leaves `PROGRESS.md` untouched.
 - `AGENTS.md`: Quick start follows the chapter's workflow (restore state, verify the repo, then work); hard constraint 4 now commits each verified unit at once, with `PROGRESS.md`; `DECISIONS.md` joined the routing table; the failure protocol moved to `docs/harness-audit.md` to stay under 100 lines.
+  Superseded by [06](06-initialization-as-its-own-phase.md): the session-start `scripts/verify.sh` run became the cheap `scripts/check-ready.sh`, and `scripts/setup.sh` runs only when that check asks for it.
 
 ## Design choices
 
