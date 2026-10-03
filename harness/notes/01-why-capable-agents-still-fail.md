@@ -39,6 +39,8 @@ Each failure mode maps to a section of `AGENTS.md`:
 | No verification | Verification, Definition of Done | One command runs every check, and done means it passes and the behaviour was exercised. |
 | Cross-session state loss | Repo map | A new session reads the map instead of re-learning the structure. |
 
+Superseded by [02](02-what-a-harness-actually-is.md): Conventions moved to `docs/conventions.md`, and the Environment setup commands moved to `scripts/setup.sh`.
+
 Why a single `scripts/verify.sh` instead of listing commands only:
 the Definition of Done can name one command, the agent never has to pick which checks apply, and each new check lands in one place.
 
@@ -48,7 +50,9 @@ The script fails when a listed path is missing or a top-level entry is unlisted,
 
 Why the failure protocol is in `AGENTS.md` and not only here:
 it changes what the agent does when a task goes wrong, so it belongs in the always-loaded file.
+Superseded by [02](02-what-a-harness-actually-is.md): the protocol now names the five harness parts instead of these five failure modes.
 
 Not added yet: a progress log or session handoff file.
 This chapter names cross-session state loss but only prescribes `AGENTS.md`; the repo map covers the structure half of it.
 Revisit when a later chapter covers session state.
+Superseded by [02](02-what-a-harness-actually-is.md): `PROGRESS.md` added.

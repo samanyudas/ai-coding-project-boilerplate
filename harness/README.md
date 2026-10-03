@@ -23,9 +23,12 @@ Tool-specific files such as `CLAUDE.md` only import it, so every agent tool read
 - Rationale lives here, not in `AGENTS.md`.
 `AGENTS.md` is loaded every session, so it holds only what changes the agent's behaviour.
 - Unfilled project slots are written `TODO(project)` so `rg 'TODO\(project\)'` lists everything a new project must fill in.
+- `PROGRESS.md` stays a template in the boilerplate, so every fork starts clean.
+Boilerplate progress is tracked by the chapter index below.
 
 ## Chapters
 
 | # | Chapter | Repo changes |
 | --- | --- | --- |
 | 01 | [Why capable agents still fail](notes/01-why-capable-agents-still-fail.md) | `AGENTS.md`, `CLAUDE.md`, `scripts/verify.sh` |
+| 02 | [What a harness actually is](notes/02-what-a-harness-actually-is.md) | `AGENTS.md` split into `docs/`, `PROGRESS.md`, `scripts/setup.sh`, pre-commit hook, CI |

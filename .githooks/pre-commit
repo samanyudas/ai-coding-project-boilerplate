@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Blocks the commit when verification fails. Enabled by scripts/setup.sh.
+exec "$(git rev-parse --show-toplevel)/scripts/verify.sh"
