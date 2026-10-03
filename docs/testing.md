@@ -16,12 +16,26 @@ It runs on every `scripts/verify.sh`, so keep it fast and deterministic.
 - Tests are deterministic: they control time, randomness, network, and ordering.
 A flaky test is a bug; fix it when you see it.
 
+## Verification levels
+
+`scripts/verify.sh` runs these in order and stops at the first that fails, so a passing unit test can never hide a broken build or a broken flow.
+
+| Level | Proves | Lives in |
+| --- | --- | --- |
+| 1 Static | The code is well formed: format, lint, type-check | `run_static` in `scripts/verify.sh` |
+| 2 Tests and startup | Units and their integrations behave, and the project actually starts | `run_tests` and `run_startup` |
+| 3 End to end | Each `passing` feature's user flow still works through the real interface | Each feature's `verify` in `docs/features.json` |
+
+Drive end-to-end flows through what a user touches: a browser-automation suite (such as Playwright) for a web UI, the built binary for a CLI, real HTTP calls against the running server for an API, and computer use for a desktop or mobile app.
+Scripted flows catch regressions on every run; walking the flow yourself with computer use or a browser catches what scripts do not look at, such as layout, copy, and states a test never reaches.
+Both are part of the Definition of Done.
+
 ## Reference
 
 - TODO(project): Test data: fixtures, factories, and how a test gets a database or other service.
-- TODO(project): Which kinds of test the project uses (unit, integration, end-to-end), and what each covers.
+- TODO(project): The end-to-end tool, how a flow test starts the project, and how an agent reaches the running app with computer use or a browser.
 
 ## Checklist
 
 - [ ] The new test fails without your change and passes with it.
-- [ ] The full suite passes through `scripts/verify.sh`.
+- [ ] `scripts/verify.sh` passes every level, and you walked the flow yourself on the running project.

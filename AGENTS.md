@@ -45,7 +45,6 @@ TODO(project): What this project is, who it is for, and what it must do, in one 
 - Only one feature is `active` at a time; `scripts/feature.sh start <id>` refuses a second.
 - Only `scripts/feature.sh` changes a state: `verify <id>` marks a feature `passing`, with evidence, and only when its verification passes; on failure, fix it or `block <id> "<reason>"`.
 - Edit the file by hand only to add `not_started` features, each small enough to finish and verify alone; anything else you notice becomes one.
-- `scripts/verify.sh` re-runs every `passing` feature's verification, so a regression blocks the commit.
 
 ## Repo map
 
@@ -64,12 +63,9 @@ Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 - `docs/harness-audit.md` - Fixing, auditing, and measuring the harness. Read when a task fails, when asked to audit, or when results get worse.
 - `scripts/setup.sh`, `scripts/check-ready.sh` - Build the environment from a fresh clone, and check fast that it still matches. Both safe to re-run.
 - `scripts/restore-state.sh`, `.claude/settings.json` - Print the saved state and readiness; the Claude Code hook runs it at session start and after compaction.
-- `scripts/verify.sh` - The one verification command. Its limits are set at the top of the file.
-- `scripts/check-stale-docs.sh` - Warns when a change leaves `PROGRESS.md` or a module doc behind.
-- `.githooks/pre-commit`, `.github/workflows/verify.yml` - Run `verify.sh` and `check-stale-docs.sh` before every commit, and in CI on every push and pull request.
-- `.github/workflows/harness-audit.yml` - Opens a harness audit issue on the 1st of each month.
-- `AGENTS.md`, `CLAUDE.md`, `README.md` - This file, its import for Claude Code, and the human-facing overview.
-- `assets/` - Static assets such as the project icon.
+- `scripts/verify.sh`, `scripts/check-stale-docs.sh` - The leveled Definition of Done (limits and levels at the top), and the reminder about state and module docs a change left behind.
+- `.githooks/pre-commit`, `.github/workflows/verify.yml`, `.github/workflows/harness-audit.yml` - Run both scripts above before every commit and in CI on every push, and open a harness audit issue each month.
+- `AGENTS.md`, `CLAUDE.md`, `README.md`, `assets/` - This file, its import for Claude Code, the human-facing overview, and its icon.
 - `harness/` - Notes and reasons behind this boilerplate. Delete when starting a project.
 
 ## Adding a rule or knowledge
@@ -90,10 +86,13 @@ Then put it in the first place that fits, in the same commit as the change it de
 
 ## Definition of Done
 
-Check every item before calling a feature done:
+A feature is done when its end-to-end verification passes, not when its code is written.
+`scripts/verify.sh` checks in levels and stops at the first that fails; fix what it reports and re-run (`--upto <level>` for a fast loop):
 
-- [ ] The goal you restated is met, exercised end to end on the real artifact (ran the app, called the endpoint, ran the CLI).
-- [ ] New or changed behaviour is covered by a test.
-- [ ] `scripts/verify.sh` passes: TODO(project): list the format, lint, type-check, test, and build commands it runs.
-- [ ] `scripts/feature.sh verify <id>` marked the feature `passing`, and new knowledge is written where the table above puts it.
-- [ ] The finished unit is committed, with a message that says why.
+1. Static: TODO(project): the format, lint, and type-check commands.
+2. Tests and startup: TODO(project): the unit and integration test commands, and the startup check.
+3. End to end: every `passing` feature's flow, re-run.
+
+- [ ] New or changed behaviour has a test, and `scripts/feature.sh verify <id>` (levels 0 to 2, then the feature's end-to-end flow) marked it `passing`.
+- [ ] You ran the user flow yourself on the running project (computer use or a browser for a UI; the real CLI or HTTP calls otherwise), and what you saw matched the behavior.
+- [ ] New knowledge is written where the table above puts it, and the unit is committed with a message that says why.

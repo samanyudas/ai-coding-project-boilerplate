@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
-# The single verification command. Exits non-zero when any check fails.
+# The single verification command: the Definition of Done, checked in levels.
+#   0 harness            the repo's own rules: map, doc sizes, constraints, decisions, features, slots
+#   1 static             format, lint, type-check
+#   2 tests and startup  unit and integration tests, and the project starts
+#   3 end to end         every passing feature's end-to-end flow, re-run
+# Levels run in order and stop at the first that fails, because a later level
+# means nothing while an earlier one is broken.
+# Usage: verify.sh [--upto <level>]   e.g. --upto 1 for a fast inner loop
 set -euo pipefail
 shopt -s nullglob
 cd "$(dirname "$0")/.."
+
+UPTO=3
+if [[ "${1:-}" == "--upto" ]]; then
+  [[ "${2:-}" =~ ^[0-3]$ ]] || { echo "verify: --upto takes a level from 0 to 3" >&2; exit 2; }
+  UPTO="$2"
+fi
 
 # Limits. Raise one only after trying to split the file it guards.
 AGENTS_MAX_LINES=100
@@ -110,10 +123,9 @@ check_decisions() {
   ' DECISIONS.md
 }
 
-# docs/features.json: each feature well formed, WIP = 1, and every passing feature re-verified,
-# because a past pass does not prove it still works.
+# docs/features.json: each feature well formed, and WIP = 1.
 check_features() {
-  local started problems id cmd log ok=0
+  local started problems
   if [[ -d harness ]]; then started=false; else started=true; fi
   if ! problems="$(jq -r --argjson started "$started" '
     def bad(msg): "docs/features.json: \(msg)";
@@ -144,7 +156,11 @@ check_features() {
     echo "$problems" >&2
     return 1
   fi
+}
 
+# A past pass does not prove a feature still works, so every passing feature's flow re-runs.
+reverify_features() {
+  local id cmd log ok=0
   log="$(mktemp)"
   while IFS=$'\t' read -r id cmd; do
     [[ -n "$id" ]] || continue
@@ -171,23 +187,45 @@ check_todo_slots() {
   fi
 }
 
-run_project_checks() {
-  # TODO(project): Add the format, lint, type-check, test, and build commands listed in AGENTS.md.
+# Each project check runs under `set -e`, so the first failing command fails it.
+run_static() {
+  # TODO(project): The format check, lint, and type-check commands, one per line.
   :
 }
 
-echo "==> repo map"
-check_repo_map
-echo "==> doc sizes"
-check_doc_sizes
-echo "==> hard constraints"
-check_hard_constraints
-echo "==> decisions"
-check_decisions
-echo "==> features"
-check_features
-echo "==> project slots"
-check_todo_slots
-echo "==> project checks"
-run_project_checks
-echo "verify: all checks passed"
+run_tests() {
+  # TODO(project): The unit and integration test commands.
+  :
+}
+
+run_startup() {
+  # TODO(project): Start the project, confirm it answers (e.g. a health endpoint or `--version`), and stop it.
+  :
+}
+
+# Runs every check in a level, each in its own `set -e` subshell, then stops if any failed.
+run_level() {
+  local n="$1" name="$2" check status failed=()
+  shift 2
+  ((n <= UPTO)) || return 0
+  echo "==> level $n: $name"
+  for check in "$@"; do
+    set +e
+    (set -e; "$check")
+    status=$?
+    set -e
+    ((status == 0)) || failed+=("$check")
+  done
+  if ((${#failed[@]} > 0)); then
+    local skipped=""
+    ((n < 3)) && skipped="; later levels did not run"
+    echo "verify: level $n ($name) failed in ${failed[*]}. Fix what is reported above and re-run$skipped." >&2
+    exit 1
+  fi
+}
+
+run_level 0 "harness" check_repo_map check_doc_sizes check_hard_constraints check_decisions check_features check_todo_slots
+run_level 1 "static" run_static
+run_level 2 "tests and startup" run_tests run_startup
+run_level 3 "end to end" reverify_features
+echo "verify: levels 0 to $UPTO passed"

@@ -29,7 +29,7 @@ For each written rule agents still break, add a check in `scripts/verify.sh`, a 
 Run `scripts/setup.sh` in a fresh clone.
 It must succeed with no manual steps.
 5. **Feedback.**
-Break something on purpose and confirm `scripts/verify.sh` fails.
+Break something at each level on purpose and confirm `scripts/verify.sh` stops at that level with a message that says what to fix.
 6. **State.**
 Confirm `docs/features.json` and `PROGRESS.md` match reality, every `passing` feature's `verify` still tests its behavior, `DECISIONS.md` has no live decision missing, and `scripts/restore-state.sh` prints what a new session needs.
 7. **Fresh session test.**

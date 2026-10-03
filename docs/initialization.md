@@ -23,9 +23,10 @@ In `scripts/check-ready.sh`, add the files that define the environment (lockfile
 Run `scripts/setup.sh` in a fresh clone, then start the project and see it respond; write that command into Quick start in `AGENTS.md`.
 If you will also use the app day to day, give the development build a "Developer" name suffix, its own version, and its own bundle ID, so it installs beside the stable build without conflict.
 4. **Tests and checks.**
-Configure the test runner, linter, formatter, and type-checker, and write one real test that passes.
-Add every command to `run_project_checks` in `scripts/verify.sh` and to the Definition of Done in `AGENTS.md`, and fill `docs/testing.md`.
-Break something on purpose and confirm `scripts/verify.sh` fails.
+Configure the formatter, linter, type-checker, test runner, and an end-to-end tool that drives the real interface, and write one real test that passes.
+Fill the levels in `scripts/verify.sh` (`run_static`, `run_tests`, `run_startup`), list their commands in the Definition of Done in `AGENTS.md`, and fill `docs/testing.md`.
+Confirm you can reach the running app with computer use or a browser, so features can be walked end to end.
+Break something at each level on purpose and confirm `scripts/verify.sh` stops at that level.
 5. **Docs.**
 Fill every remaining `TODO(project)` slot: conventions, security, tools, and hard constraints.
 Where a slot does not apply yet, write that and why.

@@ -3,7 +3,8 @@
 # Usage:
 #   feature.sh list                  every feature with its state
 #   feature.sh start <id>            make a not_started or blocked feature active (WIP = 1)
-#   feature.sh verify <id>           run its verification; only a pass marks it passing, with evidence
+#   feature.sh verify <id>           levels 0-2 of scripts/verify.sh, then its end-to-end flow;
+#                                    only a pass marks it passing, with evidence
 #   feature.sh block <id> <reason>   mark it blocked, with what it waits on
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -59,8 +60,10 @@ cmd_verify() {
   state="$(field "$id" state)"
   [[ "$state" == "active" || "$state" == "passing" ]] || die "'$id' is $state; start it before verifying it."
   cmd="$(field "$id" verify)"
+  echo "feature: levels 0 to 2 must pass before '$id' runs its end-to-end flow"
+  scripts/verify.sh --upto 2 || die "levels 0 to 2 failed, so '$id' stays $state. Fix them first."
   log="$(mktemp)"
-  echo "feature: verifying '$id' with: $cmd"
+  echo "feature: verifying '$id' end to end with: $cmd"
   if ! bash -c "$cmd" >"$log" 2>&1; then
     tail -40 "$log"
     rm "$log"
@@ -90,5 +93,5 @@ case "${1:-}" in
   start) cmd_start "${2:-}" ;;
   verify) cmd_verify "${2:-}" ;;
   block) cmd_block "${2:-}" "${3:-}" ;;
-  *) sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2 ;;
+  *) sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//' >&2; exit 2 ;;
 esac

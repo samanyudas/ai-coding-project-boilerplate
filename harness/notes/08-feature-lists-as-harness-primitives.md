@@ -61,6 +61,7 @@ Why every `passing` feature is re-verified on every run, instead of only after "
 deciding relevance needs a map from features to code that would itself go stale.
 Running them all is simple and complete; the cost is kept down by requiring each `verify` to be a focused test, which `docs/testing.md` states.
 A project whose feature tests grow slow can add path filtering then, with a measurement to justify it.
+Superseded by [09](09-why-agents-declare-victory-too-early.md): re-verification became level 3 of `scripts/verify.sh`, and `scripts/feature.sh verify` now runs levels 0 to 2 before a feature's own flow.
 
 Why `verify` cannot call `scripts/verify.sh`:
 re-verification runs inside `scripts/verify.sh`, so that command would recurse forever.
