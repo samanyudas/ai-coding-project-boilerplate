@@ -55,7 +55,7 @@ Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 - `DECISIONS.md` - Project-wide decisions with their reasons and rejected alternatives. Open entries that bear on your task.
 - `docs/features.json`, `scripts/feature.sh` - Every feature's behavior, verification, state, and evidence; the script (`list`, `start`, `verify`, `block`) is the only way to change a state.
 - `docs/initialization.md` - The one-time setup of a new project. Read when given a project idea.
-- `docs/conventions.md` - Architecture and code rules. Read before writing code.
+- `docs/conventions.md`, `docs/architecture.json` - Architecture and code rules, and their machine-checked part: components, integration test paths, and dependency rules. Read before writing code.
 - `docs/testing.md` - How tests are written and run. Read before writing or changing tests.
 - `docs/security.md` - Secrets, credentials, and untrusted input. Read before touching any of them.
 - `docs/tools.md` - Which tools agents use. Read before adding a tool, MCP server, or script.
@@ -63,7 +63,7 @@ Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 - `docs/harness-audit.md` - Fixing, auditing, and measuring the harness. Read when a task fails, when asked to audit, or when results get worse.
 - `scripts/setup.sh`, `scripts/check-ready.sh` - Build the environment from a fresh clone, and check fast that it still matches. Both safe to re-run.
 - `scripts/restore-state.sh`, `.claude/settings.json` - Print the saved state and readiness; the Claude Code hook runs it at session start and after compaction.
-- `scripts/verify.sh`, `scripts/check-stale-docs.sh` - The leveled Definition of Done (limits and levels at the top), and the reminder about state and module docs a change left behind.
+- `scripts/verify.sh`, `scripts/review-change.sh` - The leveled Definition of Done (limits and levels at the top), and the automated review of each change.
 - `.githooks/pre-commit`, `.github/workflows/verify.yml`, `.github/workflows/harness-audit.yml` - Run both scripts above before every commit and in CI on every push, and open a harness audit issue each month.
 - `AGENTS.md`, `CLAUDE.md`, `README.md`, `assets/` - This file, its import for Claude Code, the human-facing overview, and its icon.
 - `harness/` - Notes and reasons behind this boilerplate. Delete when starting a project.
@@ -75,7 +75,7 @@ Then put it in the first place that fits, in the same commit as the change it de
 
 | What it is | Where it goes |
 | --- | --- |
-| Checkable by a tool | A test, a lint rule, or a check in `scripts/verify.sh` |
+| Checkable by a tool, or raised twice in review | A test, a lint rule, a rule in `docs/architecture.json`, or a check in `scripts/verify.sh` |
 | True for every task | Hard constraints above |
 | A project-wide decision and its reasons | `DECISIONS.md` |
 | About one topic (API, database, security, testing) | `docs/<topic>.md`, linked in the repo map |
@@ -93,6 +93,6 @@ A feature is done when its end-to-end verification passes, not when its code is 
 2. Tests and startup: TODO(project): the unit and integration test commands, and the startup check.
 3. End to end: every `passing` feature's flow, re-run.
 
-- [ ] New or changed behaviour has a test, and `scripts/feature.sh verify <id>` (levels 0 to 2, then the feature's end-to-end flow) marked it `passing`.
+- [ ] New or changed behaviour has a test, a change across components has an integration or end-to-end test that crosses them, and `scripts/feature.sh verify <id>` (levels 0 to 2, then the feature's end-to-end flow) marked it `passing`.
 - [ ] You ran the user flow yourself on the running project (computer use or a browser for a UI; the real CLI or HTTP calls otherwise), and what you saw matched the behavior.
 - [ ] New knowledge is written where the table above puts it, and the unit is committed with a message that says why.

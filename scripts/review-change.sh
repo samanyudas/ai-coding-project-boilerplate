@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Automated review of a change: what a reviewer would flag that is not worth blocking a commit.
+# Blocking checks belong in scripts/verify.sh; a review issue raised twice becomes one of these, or a gate.
+# - a module's files changed but its ARCHITECTURE.md or CONSTRAINTS.md did not;
+# - in a started project (no harness/), neither docs/features.json nor PROGRESS.md was updated;
+# - the change spans two or more components in docs/architecture.json, but no integration or end-to-end test changed.
+# A reminder, not a gate: it always exits 0.
+# Usage: review-change.sh <git diff args>, e.g. `--cached` or `<base> HEAD`.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+changed="$(git diff --name-only "$@")"
+[[ -z "$changed" ]] && exit 0
+
+warn() {
+  if [[ -n "${GITHUB_ACTIONS:-}" ]]; then
+    echo "::warning file=$1::$2"
+  else
+    echo "review: $2" >&2
+  fi
+}
+
+touches() {
+  grep -q "^${1%/}/" <<<"$changed"
+}
+
+{ git ls-files | grep -E '(^|/)(ARCHITECTURE|CONSTRAINTS)\.md$' || true; } | while IFS= read -r doc; do
+  dir="$(dirname "$doc")"
+  [[ "$dir" == "." ]] && continue
+  grep -qxF "$doc" <<<"$changed" && continue
+  if touches "$dir"; then
+    warn "$doc" "$dir/ changed but $doc did not. Check whether it still holds."
+  fi
+done
+
+if [[ ! -d harness ]] && ! grep -qxE 'PROGRESS\.md|docs/features\.json' <<<"$changed"; then
+  warn PROGRESS.md "Neither docs/features.json nor PROGRESS.md changed. Record what this unit finished and how far the active feature got."
+fi
+
+touched=()
+while IFS=$'\t' read -r name path; do
+  [[ -n "$name" ]] && touches "$path" && touched+=("$name")
+done < <(jq -r '.components[] | [.name, .path] | @tsv' docs/architecture.json)
+if ((${#touched[@]} >= 2)); then
+  covered=false
+  while IFS= read -r tests; do
+    [[ -n "$tests" ]] && touches "$tests" && covered=true
+  done < <(jq -r '.integration_tests[]' docs/architecture.json)
+  if [[ "$covered" == false ]]; then
+    warn docs/architecture.json "This change spans components ${touched[*]}, and no integration or end-to-end test changed. Unit tests cannot see what breaks between components (interfaces, state, permissions, environment). Add or extend a test in $(jq -r '.integration_tests | join(", ") | if . == "" then "an integration test path (none declared in docs/architecture.json)" else . end' docs/architecture.json) that crosses them, or confirm an existing feature flow does."
+  fi
+fi

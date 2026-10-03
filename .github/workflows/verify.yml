@@ -14,12 +14,12 @@ jobs:
       - run: scripts/setup.sh
       - run: scripts/check-ready.sh
       - run: scripts/verify.sh
-      - name: Check stale docs
+      - name: Review change
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           if git cat-file -e "$BASE^{commit}" 2>/dev/null; then
-            scripts/check-stale-docs.sh "$BASE" HEAD
+            scripts/review-change.sh "$BASE" HEAD
           else
             echo "No base commit to compare against; skipping."
           fi

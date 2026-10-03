@@ -24,7 +24,8 @@ Fix or delete every rule that is stale, duplicated, or in conflict with another,
 Move each hard constraint that is not truly global into its topic or module doc.
 Split any doc near its size limit by topic.
 3. **Executable rules.**
-For each written rule agents still break, add a check in `scripts/verify.sh`, a hook, or a CI step.
+For each written rule agents still break, and each issue reviews raised more than once, add a check: a rule in `docs/architecture.json`, a check in `scripts/verify.sh`, a hook, or a CI step.
+Read the failure messages too: each must say what broke, why, and how to fix it.
 4. **Environment.**
 Run `scripts/setup.sh` in a fresh clone.
 It must succeed with no manual steps.

@@ -12,6 +12,8 @@ How tests are written and run.
 - Every new or changed behaviour gets a test that fails without the change and passes with it.
 - Each feature's `verify` command in `docs/features.json` runs a focused test that checks its behavior end to end, through the interface a user or caller would use.
 It runs on every `scripts/verify.sh`, so keep it fast and deterministic.
+- A change that crosses components (see `docs/architecture.json`) needs an integration or end-to-end test that crosses them too.
+Unit tests cannot see interface, state, resource, permission, and environment failures, which appear only when the parts run together.
 - Test behaviour through public interfaces, so a refactor that keeps behaviour keeps the tests green.
 - Tests are deterministic: they control time, randomness, network, and ordering.
 A flaky test is a bug; fix it when you see it.

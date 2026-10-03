@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The single verification command: the Definition of Done, checked in levels.
 #   0 harness            the repo's own rules: map, doc sizes, constraints, decisions, features, slots
-#   1 static             format, lint, type-check
+#   1 static             architecture rules, format, lint, type-check
 #   2 tests and startup  unit and integration tests, and the project starts
 #   3 end to end         every passing feature's end-to-end flow, re-run
 # Levels run in order and stop at the first that fails, because a later level
@@ -45,21 +45,21 @@ check_repo_map() {
 
   while IFS= read -r path; do
     if [[ ! -e "${path%/}" ]]; then
-      echo "repo map: AGENTS.md lists '$path', which does not exist" >&2
+      echo "repo map: AGENTS.md lists '$path', which does not exist, so the map misleads every session. Fix the path or delete the line." >&2
       ok=1
     fi
   done <<<"$paths"
 
   for entry in * docs/*; do
     if ! grep -qE "^${entry}(/|$)" <<<"$paths"; then
-      echo "repo map: '$entry' is missing from the repo map in AGENTS.md" >&2
+      echo "repo map: '$entry' is missing from the repo map in AGENTS.md, and agents only find what the map lists. Add a line saying what it is and when to read it." >&2
       ok=1
     fi
   done
 
   while IFS= read -r doc; do
     if [[ -n "$doc" ]] && ! grep -qxF "$doc" <<<"$paths"; then
-      echo "repo map: module doc '$doc' is missing from the repo map in AGENTS.md" >&2
+      echo "repo map: module doc '$doc' is missing from the repo map in AGENTS.md, so no agent will read it before changing that module. Add a line for it." >&2
       ok=1
     fi
   done <<<"$(module_docs)"
@@ -71,7 +71,7 @@ check_max_lines() {
   local file="$1" max="$2" lines
   lines="$(wc -l <"$file" | tr -d ' ')"
   if ((lines > max)); then
-    echo "$file: $lines lines, limit is $max. Split it by topic and link the parts from the repo map." >&2
+    echo "$file: $lines lines, limit is $max; past it, agents skim and miss rules. Split it by topic and link the parts from the repo map." >&2
     return 1
   fi
 }
@@ -91,7 +91,7 @@ check_hard_constraints() {
   local count
   count="$(section "Hard constraints" | grep -cE '^[0-9]+\. ' || true)"
   if ((count > HARD_CONSTRAINTS_MAX)); then
-    echo "AGENTS.md: $count hard constraints, limit is $HARD_CONSTRAINTS_MAX. Move topic or module rules to their docs, and tool-checkable ones into checks." >&2
+    echo "AGENTS.md: $count hard constraints, limit is $HARD_CONSTRAINTS_MAX; past it, each one gets less attention. Move topic or module rules to their docs, and tool-checkable ones into checks." >&2
     return 1
   fi
 }
@@ -102,7 +102,7 @@ check_decisions() {
     function finish() {
       if (title == "") return
       for (i = 1; i <= 4; i++) if (!(label[i] in seen)) {
-        printf "DECISIONS.md: \"%s\" is missing **%s:**\n", title, label[i] > "/dev/stderr"; bad = 1
+        printf "DECISIONS.md: \"%s\" is missing **%s:**, so a future session cannot tell why it holds. Add the field.\n", title, label[i] > "/dev/stderr"; bad = 1
       }
       delete seen
     }
@@ -187,6 +187,50 @@ check_todo_slots() {
   fi
 }
 
+# docs/architecture.json: components, integration test paths, and rules that each say why and how to fix.
+check_architecture_file() {
+  local problems
+  if ! problems="$(jq -r '
+    def bad(msg): "docs/architecture.json: \(msg)";
+    def str: type == "string" and . != "";
+    if (.components | type) != "array" or (.integration_tests | type) != "array" or (.rules | type) != "array"
+    then bad("needs \"components\", \"integration_tests\", and \"rules\" arrays") else
+      ( .components[] | select((.name | str | not) or (.path | str | not)) | bad("component \(tojson) needs a name and a path") ),
+      ( .integration_tests[] | select(str | not) | bad("integration test path \(tojson) must be a non-empty string") ),
+      ( .rules[] | . as $r | ("name", "forbid", "why", "fix")
+        | select($r[.] | str | not) | bad("rule \($r.name // "?" | tojson) needs \(.)") ),
+      ( .rules[] | select((.files | type) != "array" or (.files | length) == 0) | bad("rule \(.name // "?" | tojson) needs a non-empty files array") )
+    end
+  ' docs/architecture.json 2>&1)"; then
+    echo "docs/architecture.json: not valid JSON: $problems" >&2
+    return 1
+  fi
+  [[ -z "$problems" ]] || { echo "$problems" >&2; return 1; }
+  local path ok=0
+  while IFS= read -r path; do
+    [[ -z "$path" || -e "${path%/}" ]] && continue
+    echo "docs/architecture.json: '$path' does not exist, so checks built on it see nothing. Fix the path or remove it." >&2
+    ok=1
+  done < <(jq -r '.components[].path, .integration_tests[]' docs/architecture.json)
+  return "$ok"
+}
+
+# Each rule forbids a pattern in a set of files; a hit prints what broke, why, and how to fix it.
+check_architecture() {
+  local name forbid why fix files hits ok=0
+  while IFS=$'\t' read -r name forbid why fix files; do
+    [[ -n "$name" ]] || continue
+    local -a specs=()
+    while IFS= read -r glob; do specs+=(":(glob)$glob"); done < <(jq -r '.[]' <<<"$files")
+    hits="$(git grep --untracked -nE -e "$forbid" -- "${specs[@]}" || true)"
+    if [[ -n "$hits" ]]; then
+      printf 'architecture: rule "%s" broken:\n%s\n  why: %s\n  fix: %s\n' "$name" "$hits" "$why" "$fix" >&2
+      ok=1
+    fi
+  done < <(jq -r '.rules[] | [.name, .forbid, .why, .fix, (.files | tojson)] | @tsv' docs/architecture.json)
+  return "$ok"
+}
+
 # Each project check runs under `set -e`, so the first failing command fails it.
 run_static() {
   # TODO(project): The format check, lint, and type-check commands, one per line.
@@ -224,8 +268,8 @@ run_level() {
   fi
 }
 
-run_level 0 "harness" check_repo_map check_doc_sizes check_hard_constraints check_decisions check_features check_todo_slots
-run_level 1 "static" run_static
+run_level 0 "harness" check_repo_map check_doc_sizes check_hard_constraints check_decisions check_features check_architecture_file check_todo_slots
+run_level 1 "static" check_architecture run_static
 run_level 2 "tests and startup" run_tests run_startup
 run_level 3 "end to end" reverify_features
 echo "verify: levels 0 to $UPTO passed"

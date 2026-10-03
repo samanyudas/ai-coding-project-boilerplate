@@ -29,6 +29,7 @@ Confirm you can reach the running app with computer use or a browser, so feature
 Break something at each level on purpose and confirm `scripts/verify.sh` stops at that level.
 5. **Docs.**
 Fill every remaining `TODO(project)` slot: conventions, security, tools, and hard constraints.
+Declare the components and integration test paths in `docs/architecture.json`, with a rule for each boundary the design relies on.
 Where a slot does not apply yet, write that and why.
 6. **Features.**
 Break the idea into small features in `docs/features.json`, in priority order, all `not_started`, each one finishable and verifiable alone in one session.
