@@ -1,21 +1,31 @@
 # Observability
 
-What an agent can see when the harness and the project run, so a failure is diagnosed from evidence instead of guessed at.
-Without it, evaluation turns subjective and retries turn into blind guesses.
+Logs, health checks, and run reports let an agent diagnose failures from evidence.
+Without evidence, evaluation becomes subjective and retries test guesses.
 
 ## Quick start
 
-- **Harness runs.** Every `scripts/verify.sh` run leaves a log per check and a `summary.json` under `.harness/runs/` (the newest is `.harness/runs/latest`), and `scripts/feature.sh verify` leaves its flow log beside them.
-A failure prints the end of the failing log and its path; `scripts/restore-state.sh` shows the last result; CI uploads the same directory as the `harness-runs` artifact when a run fails.
+- Every `scripts/verify.sh` run writes a log per check and a `summary.json` under `.harness/runs/`.
+`.harness/runs/latest` points to the newest run.
+`scripts/feature.sh verify` writes its flow log beside those logs.
+A failure prints the end of the failing log and its path.
+`scripts/restore-state.sh` shows the last result.
+When a run fails, CI uploads the same directory as the `harness-runs` artifact.
 - TODO(project): Where the running project writes its logs (a path an agent can read), and the command to follow them.
 - TODO(project): The health check (URL or command), and what it reports for each component and dependency.
 
 ## Hard constraints
 
-- Diagnose before retrying: read the failing log or runtime signal and name the cause first. A retry without a new hypothesis is a blind guess.
-- The project logs structured events, one JSON object per line with time, level, event, and a request or trace id, so one request can be followed across components.
+- Before retrying, read the failing log or runtime signal.
+Name the cause before another attempt.
+A retry without a new hypothesis tests a guess.
+- The project logs each structured event as one JSON object per line.
+Each object includes time, level, event, and a request or trace id.
+The id lets an agent follow a request across components.
 - Every component exposes a health check, and the startup check (level 2) calls it.
-- An error is logged once, where it is handled, with the context to reproduce it (inputs, ids, the failing step), and never swallowed.
+- Log each error once, where the code handles it.
+Include the inputs, ids, and failing step needed to reproduce the error.
+Never swallow an error.
 - Secrets and personal data stay out of logs, as `docs/security.md` requires.
 
 ## Signals
@@ -31,16 +41,19 @@ A failure prints the end of the failing log and its path; `scripts/restore-state
 
 ## Verification report
 
-The evaluator rubric for a feature: check each requirement in its `behavior` against runtime evidence, and write the result into the active feature notes in `PROGRESS.md`:
+The evaluator checks each requirement in the feature's `behavior` against runtime evidence.
+The calling agent records the report in the active feature notes in `PROGRESS.md`.
+The report has one row per requirement:
 
 | Requirement | Evidence (response, log line, screenshot, metric) | Result | Where it failed |
 | --- | --- | --- | --- |
 
-A failed row names the expected and the actual result, and where it diverged (file, step, or log line), so the next attempt starts from the cause.
-The report is what turns "it seems to work" into a pass anyone can reproduce.
+A failed row states the expected result, actual result, and failure location, such as a file, step, or log line.
+This evidence lets the next attempt start from the cause.
+The report provides reproducible evidence for a passing result.
 
 ## Checklist
 
-- [ ] Every failure you hit was diagnosed from its log or runtime signal before you retried.
+- [ ] You diagnosed each failure from its log or runtime signal before another attempt.
 - [ ] New code paths log their key events, and errors with their context.
 - [ ] The verification report covers every requirement with evidence.

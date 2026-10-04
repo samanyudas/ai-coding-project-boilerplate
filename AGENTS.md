@@ -1,12 +1,13 @@
 # AGENTS.md
 
-The entry point for agents in this repository, read at the start of every session.
-Task arrives → read this file → open only the docs the repo map links for that task → read the code → make the change → verify.
+Read this file at the start of every session.
+Read only the docs that the repo map links for your task.
+Then read the code, make the change, and verify the result in that order.
 
 ## Initialization
 
 This repo is not initialized yet.
-Given a project idea, follow `docs/initialization.md` before any feature work; its last steps delete this section.
+Given a project idea, follow `docs/initialization.md` before any feature work.
 When you are changing the boilerplate itself instead, read `harness/README.md` first.
 
 ## Project
@@ -15,10 +16,11 @@ TODO(project): What this project is, who it is for, and what it must do, in one 
 
 ## Quick start
 
-1. Restore state: `scripts/restore-state.sh` prints the features, progress notes, decision headings, the git checkpoint, and environment readiness (Claude Code runs it for you at session start and after compaction).
-2. When it reports the environment not ready, run `scripts/setup.sh`; setup repeats only when the environment changed.
-3. Continue the `active` feature, or start the first `not_started` one with `scripts/feature.sh start <id>`, and restate its behavior as a concrete goal (the input, the behaviour, the output, and how you will verify it); ask when any of those is open.
-"Add search" is not a goal yet; "case-insensitive title search on `GET /posts?q=`, newest first, covered by an API test" is.
+1. Run `scripts/restore-state.sh` to print the features, progress notes, decision headings, git checkpoint, and environment readiness.
+2. If the environment is not ready, run `scripts/setup.sh`.
+3. Continue the `active` feature, or start the first `not_started` feature with `scripts/feature.sh start <id>`.
+State its input, behavior, output, and verification method as a concrete goal.
+Ask when any part is unclear.
 4. Run the project: TODO(project): the command that starts it, and how to reach it (URL, CLI usage).
 
 ## Tech stack
@@ -30,61 +32,69 @@ TODO(project): What this project is, who it is for, and what it must do, in one 
 
 ## Hard constraints
 
-1. The repo is the single source of truth: you know only your task, the files here, and tool output, so anything that matters is written into a file here.
+1. The repo is the single source of truth.
+You know only your task, the files here, and tool output.
+Write anything that matters into a file here.
 2. Write code against the exact versions in Tech stack.
 3. Commit only through the pre-commit hook, with `scripts/verify.sh` passing.
-4. Commit each unit of work as soon as it is done and verified, with its code, tests, docs, and updated state (`docs/features.json`, `PROGRESS.md`), so compaction or a crash never loses finished work. Discard a failed attempt with `git restore` or by dropping its branch.
-5. WIP = 1 is per agent: parallel agents each take a different, independent feature, on their own branch in their own worktree, and merge only finished, verified work.
+4. Commit each finished, verified unit immediately with its code, tests, docs, and updated state (`docs/features.json`, `PROGRESS.md`).
+Discard a failed attempt with `git restore` or by dropping its branch.
+5. WIP = 1 applies per agent.
+Each parallel agent takes a different, independent feature on its own branch in its own worktree.
+Merge only finished, verified work.
 6. Keep secrets out of tracked files.
-7. Diagnose before retrying: read the failing log (`.harness/runs/latest/`) or runtime signal and name the cause first, so a retry tests a hypothesis instead of guessing.
+7. Before retrying, read the failing log (`.harness/runs/latest/`) or runtime signal.
+Name the cause so the retry tests a hypothesis.
 8. TODO(project): Project-wide hard constraints, one per line, each with its reason.
 
 ## Feature list rules
 
-`docs/features.json` is the single source of truth for scope and done: each feature's behavior, its verification command, its state, and the evidence that it passed.
+`docs/features.json` is authoritative for feature behavior, verification commands, states, and passing evidence.
 
-- Only one feature is `active` at a time; `scripts/feature.sh start <id>` refuses a second.
-- Only `scripts/feature.sh` changes a state: `verify <id>` marks a feature `passing`, with evidence, and only when its verification passes; on failure, fix it or `block <id> "<reason>"`.
-- Edit the file by hand only to add `not_started` features, each small enough to finish and verify alone; anything else you notice becomes one.
+- `scripts/feature.sh start <id>` refuses a second `active` feature.
+- Only `scripts/feature.sh` changes a state.
+`verify <id>` marks a feature `passing`, with evidence, only when its verification passes.
+On failure, fix the feature or run `scripts/feature.sh block <id> "<reason>"`.
+- Edit the file by hand only to add `not_started` features, each small enough to finish and verify alone.
+Record anything else you notice as a `not_started` feature.
 
 ## Repo map
 
-`scripts/verify.sh` fails when a listed path is missing, or when a top-level entry, a file in `docs/`, or a module doc is unlisted.
+`scripts/verify.sh` rejects missing listed paths and unlisted top-level entries, files in `docs/`, or module docs.
 Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 
-- `PROGRESS.md` - Notes on how far the active feature got. Update with every commit.
-- `DECISIONS.md` - Project-wide decisions with their reasons and rejected alternatives. Open entries that bear on your task.
-- `docs/features.json`, `scripts/feature.sh` - Every feature's behavior, verification, state, and evidence; the script (`list`, `start`, `verify`, `block`, `remaining`) is the only way to change a state.
-- `docs/initialization.md` - The one-time setup of a new project. Read when given a project idea.
-- `docs/conventions.md`, `docs/architecture.json` - Architecture and code rules, and their machine-checked part: components, integration test paths, and dependency rules. Read before writing code.
-- `docs/testing.md` - How tests are written and run. Read before writing or changing tests.
-- `docs/security.md` - Secrets, credentials, and untrusted input. Read before touching any of them.
-- `docs/tools.md`, `docs/documentation.md` - Which tools agents use, and where each rule or piece of knowledge goes and how docs are structured. Read before adding a tool or script, a rule, or any doc.
-- `docs/observability.md` - Logs, health checks, run evidence, and the verification report. Read before diagnosing a failure, or adding code that runs.
-- `docs/loops.md`, `docs/graph.md`, `.claude/agents/evaluator.md` - Running the agent in loops, the process as a graph (nodes, routing, shared state, the human pause before merge), and the independent evaluator. Read before setting up a loop, changing the process, or judging a feature.
-- `docs/harness-audit.md`, `docs/cleanup.md` - Fixing, auditing, and measuring the harness, and the per-session and weekly cleanup. Read when a task fails, before ending a session, when asked to audit or clean up, or when results get worse.
-- `scripts/setup.sh`, `scripts/check-ready.sh` - Build the environment from a fresh clone, and check fast that it still matches. Both safe to re-run.
-- `scripts/restore-state.sh`, `scripts/end-session.sh`, `scripts/scan.sh`, `.claude/settings.json` - Restore state at session start (the Claude Code hook runs it, also after compaction), check for a clean handoff at session end, and report weekly drift.
-- `scripts/verify.sh`, `scripts/review-change.sh` - The leveled Definition of Done (limits and levels at the top), and the automated review of each change.
-- `.githooks/pre-commit`, `.github/workflows/verify.yml`, `.github/workflows/maintenance.yml` - Run both scripts above before every commit and in CI on every push, and open the weekly cleanup and monthly audit issues.
-- `AGENTS.md`, `CLAUDE.md`, `README.md`, `assets/` - This file, its import for Claude Code, the human-facing overview, and its icon.
-- `harness/` - Notes and reasons behind this boilerplate. Delete when starting a project.
-
-## Adding a rule or knowledge
-
-Search for an existing rule on the subject first, and change it rather than adding one that conflicts.
-Then put the new one where the routing table in `docs/documentation.md` sends it (a check, a hard constraint, `DECISIONS.md`, a topic or module doc, the source, a feature, or `PROGRESS.md`), in the same commit as the change it describes.
+- `PROGRESS.md` - Update the active feature notes with every commit.
+- `DECISIONS.md` - Read relevant project decisions, their reasons, and rejected alternatives before your task.
+- `docs/features.json`, `scripts/feature.sh` - Feature behavior, verification, state, and evidence through `list`, `start`, `verify`, `block`, and `remaining`.
+- `docs/initialization.md` - Follow the one-time setup when given a project idea.
+- `docs/conventions.md`, `docs/architecture.json` - Before writing code, read the architecture, code rules, components, integration test paths, and dependency rules.
+- `docs/testing.md` - Before writing or changing tests, read how to write and run them.
+- `docs/security.md` - Before touching secrets, credentials, or untrusted input, read their requirements.
+- `docs/tools.md`, `docs/documentation.md` - Before adding tools, scripts, rules, or docs, or editing agent instructions, read tool usage, rule placement, and wording.
+- `docs/observability.md` - Before diagnosing a failure or adding code that runs, read about logs, health checks, run evidence, and verification reports.
+- `docs/loops.md`, `docs/graph.md`, `.claude/agents/evaluator.md` - Before configuring loops, changing the process, or judging features, read routing, shared state, human review, and independent evaluation.
+- `docs/harness-audit.md`, `docs/cleanup.md` - Read about harness repair, audits, measurement, and cleanup when tasks fail, results worsen, or you audit, clean up, or end sessions.
+- `scripts/setup.sh`, `scripts/check-ready.sh` - Safely repeat environment setup from a fresh clone and readiness checks.
+- `scripts/restore-state.sh`, `scripts/end-session.sh`, `scripts/scan.sh`, `.claude/settings.json` - Session restoration, clean handoff checks, weekly drift reports, and Claude Code restoration hooks at session start and after compaction.
+- `scripts/verify.sh`, `scripts/review-change.sh` - The leveled Definition of Done and automated change review, with limits and levels in `scripts/verify.sh`.
+- `.githooks/pre-commit`, `.github/workflows/verify.yml`, `.github/workflows/maintenance.yml` - Verification and review before commits and on CI pushes, plus weekly cleanup and monthly audit issues.
+- `AGENTS.md`, `CLAUDE.md`, `README.md`, `assets/` - Agent entry point, Claude Code import, human overview, and icon.
+- `harness/` - Delete the boilerplate's engineering notes and reasons when starting a project.
 
 ## Definition of Done
 
-A feature is done when its end-to-end verification passes, not when its code is written.
-`scripts/verify.sh` checks in levels and stops at the first that fails; fix what it reports and re-run (`--upto <level>` for a fast loop):
+`scripts/verify.sh` stops at the first failing level.
+Fix the reported failures before another run, using `--upto <level>` for a fast verification loop.
 
 1. Static: TODO(project): the format, lint, and type-check commands.
 2. Tests and startup: TODO(project): the unit and integration test commands, and the startup check.
 3. End to end: every `passing` feature's flow, re-run.
 
-- [ ] New or changed behaviour has a test, a change across components has an integration or end-to-end test that crosses them, and `scripts/feature.sh verify <id>` (levels 0 to 2, then the feature's end-to-end flow) marked it `passing`.
-- [ ] An independent evaluator given only the feature id, not the agent that wrote the code (the `evaluator` subagent, a fresh session, or another model), walked the user flow on the running project, and its verification report (`docs/observability.md`) shows evidence for every requirement.
-- [ ] New knowledge is written where `docs/documentation.md` routes it, and the unit is committed with a message that says why.
-- [ ] Before the session ends, `scripts/end-session.sh` passes: scratch files gone, nothing uncommitted, state current, every level green.
+- [ ] New or changed behavior has a test.
+Changes across components have an integration or end-to-end test that crosses them.
+`scripts/feature.sh verify <id>` passed levels 0 to 2 and the feature's end-to-end flow, then marked it `passing`.
+- [ ] An independent evaluator received only the feature id and walked the user flow on the running project.
+Use the `evaluator` subagent, a fresh session, or another model, never the agent that wrote the code.
+Its verification report (`docs/observability.md`) provides evidence for every requirement.
+- [ ] New knowledge follows `docs/documentation.md`, and the unit's commit message explains why it changed.
+- [ ] Before the session ends, `scripts/end-session.sh` passes with scratch files gone, nothing uncommitted, state current, and every level green.
