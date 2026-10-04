@@ -6,6 +6,8 @@ How tests are written and run.
 
 - TODO(project): Test framework and version, and where tests live.
 - TODO(project): The command to run one test file, and the command for the whole suite.
+- Run `python3 scripts/test-ste.py` for the writing-check regression tests.
+`scripts/verify.sh` runs them at level 2.
 
 ## Hard constraints
 

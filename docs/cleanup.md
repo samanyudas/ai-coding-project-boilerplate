@@ -31,7 +31,9 @@ It lists every problem it finds and exits non-zero until all are fixed.
 
 A full pass over the whole system, the way a tracing collector finds what reference counting missed:
 
-1. Read the scan report: verification, size pressure, debt markers, features, a week of review warnings, and benchmarks.
+1. Read the scan report: verification, ASD-STE100 writing findings, size pressure, debt markers, features, review warnings, and benchmarks.
+Review writing findings against `docs/documentation.md` before rewriting.
+Resolve operational errors before treating the writing check as complete.
 2. Fix structural issues: dead code, duplication, oversized files and modules, and each debt marker; record anything too big for now as a `not_started` feature.
 3. Update quality docs that drifted: module `ARCHITECTURE.md` and `CONSTRAINTS.md`, topic docs, and `DECISIONS.md` entries that no longer hold.
 4. Run the benchmarks and compare them with the baseline; treat drift beyond tolerance as a finding.

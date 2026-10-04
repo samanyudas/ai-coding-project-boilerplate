@@ -269,6 +269,7 @@ run_static() {
 }
 
 run_tests() {
+  python3 scripts/test-ste.py
   # TODO(project): The unit and integration test commands.
   :
 }

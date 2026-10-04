@@ -68,6 +68,32 @@ They do not require its approved-word dictionary or establish full ASD-STE100 co
 The optional `asd-ste100` skill can identify unclear passages and suggest rewrites.
 Review automated findings against the intended meaning before changing the text.
 
+## Periodic writing check
+
+Run `python3 scripts/check-ste.py` to review maintained Markdown.
+The weekly `scripts/scan.sh` report includes the same findings in the Monday cleanup issue.
+The existing maintenance workflow also supports a manual cleanup run.
+
+The check includes root Markdown, `docs/`, `.claude/agents/`, and module `ARCHITECTURE.md` and `CONSTRAINTS.md` files.
+It includes tracked files and untracked files that Git does not ignore.
+It excludes historical `harness/` notes and tracked files deleted from the working tree.
+
+The check reports sentence length, semicolons, selected phrasal verbs, nominalization, marketing adjectives, dangling conjunctions, passive voice, compound tenses, and synonym rotation.
+Every finding remains visible, including advisory findings.
+No baseline suppresses existing findings.
+Heuristics can flag valid wording, especially distinct actions named `check` and `verify`.
+Review each finding before rewriting.
+
+Exit code `0` means no findings, `1` means findings, and `2` means an operational error.
+Use `--json` for a structured report or `--root /absolute/repository/path` to check another repository.
+Operational errors remain visible in the weekly report alongside any findings collected before the error.
+
+The linter checks selected structural rules without the official approved-word dictionary.
+It uses a 25-word cap because it cannot reliably distinguish instructions from explanations.
+Reviewers must still check the 20-word instruction target, meaning, conditions, and approval requirements.
+The writing report is advisory and does not block commits.
+The linter's regression tests run at verification level 2.
+
 A concrete feature goal names the input, behavior, output, and verification method.
 For example, specify case-insensitive title search on `GET /posts?q=`, newest first, covered by an API test.
 "Add search" leaves those requirements unclear.
@@ -77,4 +103,5 @@ For example, specify case-insensitive title search on `GET /posts?q=`, newest fi
 - [ ] The doc is in the place the routing table names, and linked from the repo map with when to read it.
 - [ ] It says nothing the code or config already says.
 - [ ] No other doc holds a rule that conflicts with it.
+- [ ] You reviewed writing findings without changing facts, uncertainty, limits, or approval requirements.
 - [ ] `scripts/verify.sh` passes.

@@ -21,6 +21,24 @@ else
 fi
 
 echo
+echo "## ASD-STE100 writing review"
+echo
+echo "Review each finding against the intended meaning. This check does not certify full ASD-STE100 compliance."
+echo
+echo '```text'
+if writing="$(python3 scripts/check-ste.py 2>&1)"; then
+  writing_status=0
+else
+  writing_status=$?
+fi
+printf '%s\n' "$writing"
+echo '```'
+if ((writing_status != 0 && writing_status != 1)); then
+  echo
+  echo "The writing check could not complete. Fix the reported error before reviewing its findings."
+fi
+
+echo
 echo "## Size pressure"
 echo
 echo "Files at 90% of their limit or more; split them before they reach it."

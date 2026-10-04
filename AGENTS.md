@@ -75,8 +75,8 @@ Search with `rg <pattern>` for content and `rg --files | rg <name>` for files.
 - `docs/loops.md`, `docs/graph.md`, `.claude/agents/evaluator.md` - Before configuring loops, changing the process, or judging features, read routing, shared state, human review, and independent evaluation.
 - `docs/harness-audit.md`, `docs/cleanup.md` - Read about harness repair, audits, measurement, and cleanup when tasks fail, results worsen, or you audit, clean up, or end sessions.
 - `scripts/setup.sh`, `scripts/check-ready.sh` - Safely repeat environment setup from a fresh clone and readiness checks.
-- `scripts/restore-state.sh`, `scripts/end-session.sh`, `scripts/scan.sh`, `.claude/settings.json` - Session restoration, clean handoff checks, weekly drift reports, and Claude Code restoration hooks at session start and after compaction.
-- `scripts/verify.sh`, `scripts/review-change.sh` - The leveled Definition of Done and automated change review, with limits and levels in `scripts/verify.sh`.
+- `scripts/restore-state.sh`, `scripts/end-session.sh`, `scripts/scan.sh`, `scripts/check-ste.py`, `.claude/settings.json` - Session restoration, handoff checks, weekly drift and writing reports, and Claude Code restoration hooks at session start and after compaction.
+- `scripts/verify.sh`, `scripts/review-change.sh`, `scripts/test-ste.py` - The leveled Definition of Done, automated change review, and writing-check regression tests, with limits and levels in `scripts/verify.sh`.
 - `.githooks/pre-commit`, `.github/workflows/verify.yml`, `.github/workflows/maintenance.yml` - Verification and review before commits and on CI pushes, plus weekly cleanup and monthly audit issues.
 - `AGENTS.md`, `CLAUDE.md`, `README.md`, `assets/` - Agent entry point, Claude Code import, human overview, and icon.
 - `harness/` - Delete the boilerplate's engineering notes and reasons when starting a project.
