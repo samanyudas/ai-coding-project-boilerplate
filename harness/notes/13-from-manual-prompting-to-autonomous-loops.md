@@ -48,6 +48,7 @@ In one line: you as the prompter are the bottleneck and the source of premature 
 - `scripts/feature.sh`: `remaining` lists the features still to do and exits 0 only once every feature is passing or blocked: the machine-checkable stop condition for a goal loop.
 - `.claude/agents/evaluator.md`: created; the checker subagent, which walks a feature's flow on the running project, returns the verification report and a `PASS` or `FAIL` verdict, and changes no files.
 - `docs/loops.md`: created; choosing a loop type, a ready-to-paste `/goal` contract for this repo, hard constraints for every loop, the six primitives mapped to this repo, generator and evaluator separation, ratchet loops, the four silent costs with their guards here, starting small, and the maturity ladder.
+Superseded by chapter 17: the maturity ladder is now two separate dials, and the generator and evaluator section was folded into the hard constraints.
 - `AGENTS.md`: the Definition of Done requires an independent evaluator, not the agent that wrote the code, to walk the flow; the repo map links `docs/loops.md` and the evaluator, and lists `remaining`.
 - `docs/testing.md`, `docs/initialization.md`: the walker is the evaluator, which gets the same browser or computer-use tools; initialization ends by pointing at the goal contract.
 

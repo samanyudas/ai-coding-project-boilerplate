@@ -11,6 +11,8 @@ The part a tool can check lives in `docs/architecture.json`, which `scripts/veri
 
 - `components`: each component's `name` and `path`. `scripts/review-change.sh` flags a change that spans two or more of them without touching an integration or end-to-end test.
 - `integration_tests`: the paths where tests that cross components live.
+- `high_stakes`: each path (a file or directory) where a quiet error hurts users or costs money, such as auth, security, payments, or user data, with a `why` that names who gets hurt.
+`scripts/review-change.sh` flags every change to one, because a human must read that diff and approve its merge.
 - `rules`: each forbids a pattern (an extended regex) in a set of files, such as UI code importing the database layer:
 
 ```json

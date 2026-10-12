@@ -4,7 +4,8 @@
 # - a module's files changed but its ARCHITECTURE.md or CONSTRAINTS.md did not;
 # - in a started project (no harness/), neither docs/features.json nor PROGRESS.md was updated;
 # - the change spans two or more components in docs/architecture.json, but no integration or end-to-end test changed;
-# - the contract (behavior or verify) of a feature that was passing changed: a frozen target only a human may move.
+# - the contract (behavior or verify) of a feature that was passing changed: a frozen target only a human may move;
+# - the change touches a high-stakes path in docs/architecture.json, where autonomy must stay low.
 # A reminder, not a gate: it always exits 0.
 # Usage: review-change.sh <git diff args>, e.g. `--cached` or `<base> HEAD`.
 set -euo pipefail
@@ -71,3 +72,9 @@ if ((${#touched[@]} >= 2)); then
     warn docs/architecture.json "This change spans components ${touched[*]}, and no integration or end-to-end test changed. Unit tests cannot see what breaks between components (interfaces, state, permissions, environment). Add or extend a test in $(jq -r '.integration_tests | join(", ") | if . == "" then "an integration test path (none declared in docs/architecture.json)" else . end' docs/architecture.json) that crosses them, or confirm an existing feature flow does."
   fi
 fi
+
+while IFS=$'\t' read -r path why; do
+  if [[ -n "$path" ]] && { grep -qxF "$path" <<<"$changed" || touches "$path"; }; then
+    warn "$path" "This change touches the high-stakes path $path ($why). Green checks cannot show that the change is right or should exist. A human reads every line of this diff and approves the merge. No loop merges it unattended. Name this path in the pull request."
+  fi
+done < <(jq -r '.high_stakes[] | [.path, .why] | @tsv' docs/architecture.json)

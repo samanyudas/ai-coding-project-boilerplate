@@ -218,16 +218,17 @@ check_todo_slots() {
   fi
 }
 
-# docs/architecture.json: components, integration test paths, and rules that each say why and how to fix.
+# docs/architecture.json: components, integration test paths, high-stakes paths, and rules that each say why and how to fix.
 check_architecture_file() {
   local problems
   if ! problems="$(jq -r '
     def bad(msg): "docs/architecture.json: \(msg)";
     def str: type == "string" and . != "";
-    if (.components | type) != "array" or (.integration_tests | type) != "array" or (.rules | type) != "array"
-    then bad("needs \"components\", \"integration_tests\", and \"rules\" arrays") else
+    if (.components | type) != "array" or (.integration_tests | type) != "array" or (.high_stakes | type) != "array" or (.rules | type) != "array"
+    then bad("needs \"components\", \"integration_tests\", \"high_stakes\", and \"rules\" arrays") else
       ( .components[] | select((.name | str | not) or (.path | str | not)) | bad("component \(tojson) needs a name and a path") ),
       ( .integration_tests[] | select(str | not) | bad("integration test path \(tojson) must be a non-empty string") ),
+      ( .high_stakes[] | select((.path | str | not) or (.why | str | not)) | bad("high-stakes entry \(tojson) needs a path and a why (who gets hurt when it is wrong)") ),
       ( .rules[] | . as $r | ("name", "forbid", "why", "fix")
         | select($r[.] | str | not) | bad("rule \($r.name // "?" | tojson) needs \(.)") ),
       ( .rules[] | select((.files | type) != "array" or (.files | length) == 0) | bad("rule \(.name // "?" | tojson) needs a non-empty files array") )
@@ -242,7 +243,7 @@ check_architecture_file() {
     [[ -z "$path" || -e "${path%/}" ]] && continue
     echo "docs/architecture.json: '$path' does not exist, so checks built on it see nothing. Fix the path or remove it." >&2
     ok=1
-  done < <(jq -r '.components[].path, .integration_tests[]' docs/architecture.json)
+  done < <(jq -r '.components[].path, .integration_tests[], .high_stakes[].path' docs/architecture.json)
   return "$ok"
 }
 

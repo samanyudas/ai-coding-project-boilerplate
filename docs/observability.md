@@ -50,6 +50,8 @@ The report has one row per requirement:
 
 A failed row states the expected result, actual result, and failure location, such as a file, step, or log line.
 This evidence lets the next attempt start from the cause.
+After the rows, the report lists known gaps: what the evaluator did not test, and why.
+The agent's summary of its work never replaces this evidence.
 The report provides reproducible evidence for a passing result.
 
 ## Checklist

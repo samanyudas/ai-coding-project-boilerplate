@@ -39,6 +39,7 @@ The goal is complete when scripts/feature.sh remaining exits 0 and scripts/end-s
 Stop after 10 features even if the goal remains incomplete.
 Push the branch.
 Open a pull request for review.
+In the pull request, name each changed high_stakes path from docs/architecture.json.
 Report what remains.
 Do not merge the pull request.
 ```
@@ -63,6 +64,22 @@ The next run can then resume a stopped run.
 `docs/graph.md` defines execution order, retries, rollbacks, and the human review before merge.
 Run no more loops in parallel than you can review.
 
+## Match autonomy to stakes
+
+Grant a task only the autonomy you can verify.
+Autonomy depends on who gets hurt when the change is wrong, not on how hard the task is.
+
+| Stakes | Autonomy | Example |
+| --- | --- | --- |
+| Low: no users yet, cheap to undo | A goal run, with the scripts as the gate | A migration on an unlaunched project, docs, test coverage |
+| Medium: users, but failure is visible and reversible | A goal run that ends in a pull request a human reviews | Most features |
+| High: a `high_stakes` path in `docs/architecture.json` | Short sessions, and a human reads every diff | Auth, security, payments, user data |
+
+Build verification before autonomy.
+On existing code, make it build, make it type-check, and pin current behavior with tests before a loop changes it.
+Delegate the task, never the judgment.
+Passing checks cannot show that a feature should exist.
+
 ## The six primitives here
 
 | Primitive | Job in the loop | In this repo |
@@ -73,14 +90,6 @@ Run no more loops in parallel than you can review.
 | Connectors | Access to real tools: issues, databases, chat, pull requests | MCP servers and plugins, listed in `docs/tools.md` |
 | Sub-agents | Separate maker and checker | `.claude/agents/evaluator.md` |
 | External state | Store the state that the other primitives need | `docs/features.json`, `PROGRESS.md`, `DECISIONS.md`, git, `.harness/runs/` |
-
-## Generator and evaluator
-
-The maker writes code, and the evaluator tests whether it works.
-`scripts/verify.sh` gates every commit.
-`scripts/feature.sh verify` rejects a feature whose flow fails.
-The `evaluator` subagent tests requirements that the scripts do not cover and returns `PASS` or `FAIL` with evidence.
-A goal loop uses the scripts' exit codes to determine completion, rather than the maker's claim.
 
 ## Ratchet loops
 
@@ -98,9 +107,6 @@ For work measured by a number (speed, accuracy, size), use a ratchet, as in Karp
    5. Append a row to the results log.
    6. Repeat the loop.
 
-The direction file can describe the loop in English.
-The read-only evaluator script measures whether each change improves the result.
-
 ## Four silent costs
 
 They grow the longer a loop runs.
@@ -110,7 +116,7 @@ They grow the longer a loop runs.
 | Verification debt | "Looks fine" is not confirmed | Stop conditions are exit codes: `scripts/feature.sh remaining`, `scripts/end-session.sh` |
 | Comprehension rot | Code grows faster than you understand it | Read each loop's commits and `DECISIONS.md`, and use the weekly cleanup issue to find drift |
 | Cognitive surrender | Using the loop to avoid thinking instead of to amplify it | You own the direction: the feature list, its order, and every `behavior` |
-| Token blowout | Context grows with each iteration | State on disk, the restore hook after compaction, and a fresh session per run when a loop gets long |
+| Token blowout | Context grows with each iteration | State on disk, the restore hook after compaction, and a fresh session before the context window is about 60% full |
 
 ## Starting small
 
@@ -120,12 +126,12 @@ They grow the longer a loop runs.
 4. Give it a markdown memory file.
 5. Schedule it once a day, and watch it for a week before trusting it.
 
-The maturity ladder: goal runner → scheduled single task → multi-agent loop → self-feeding loop → fleet orchestration.
-Most teams sit at levels 2 to 3.
-Advance one level at a time, only after the current level runs unattended without surprises.
+Raise two dials separately: how far one agent runs before it needs you, and how many agents run at once.
+Raise either dial one step at a time, and only after its verification runs without surprises.
 
 ## Checklist
 
 - [ ] The loop has a contract: goal, verification, machine-checkable stop condition, state file, and budget.
 - [ ] Someone other than the maker judges the result.
+- [ ] The loop's autonomy matches the stakes of what it changes.
 - [ ] You read what the loop produced before starting the next one.

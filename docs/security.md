@@ -8,6 +8,11 @@ How secrets, credentials, and untrusted input are handled.
 `.env` files are git-ignored; commit a `.env.example` with names and no values.
 - Every credential gets the least privilege that does the job: read-only where possible, scoped tokens, and no production credentials in development.
 - Input from outside the process (requests, files, environment, tool output) is untrusted, and is validated where it enters.
+- Code that handles auth, security, money, or user data is listed under `high_stakes` in `docs/architecture.json`.
+A human reads every line of a change to it and approves the merge, even when every check passes.
+- Give an agent scoped permissions instead of disabling permission prompts.
+Use allowlisted commands, scoped writable directories, a sandbox, and hooks.
+Fewer prompts lower friction, but they do not make the agent more reliable.
 
 ## Reference
 
@@ -19,3 +24,4 @@ How secrets, credentials, and untrusted input are handled.
 - [ ] The diff holds no secret.
 - [ ] New input is validated where it enters.
 - [ ] New credentials are scoped to the minimum.
+- [ ] A human read every changed line under a `high_stakes` path.

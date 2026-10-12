@@ -46,6 +46,7 @@ Return the verification report from `docs/observability.md` with one row per req
 | Requirement | Evidence | Result | Where it failed |
 | --- | --- | --- | --- |
 
+Then list the known gaps: each requirement or edge case you could not test, and why.
 Then return one verdict line.
 Use `PASS` only when every row passes.
 Otherwise, use `FAIL` with the first failing requirement and its expected and actual results.
