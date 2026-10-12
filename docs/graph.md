@@ -8,7 +8,8 @@ A single loop defers those decisions and hides its failures; written down, they 
 
 - The verify nodes get a fresh context: the evaluator receives only the feature id and judges the code and the running project, never the implementer's reasoning.
 - Nodes share data only through the shared state below; each node's own context stays private.
-- A passing feature's contract (`behavior` and `verify`) is a frozen target that only a human changes; `scripts/review-change.sh` flags any change to one, so the metric cannot be bent toward the maker.
+- A passing feature's contract (`behavior`, `verify`, and `invariants`) is a frozen target that only a human changes.
+`scripts/review-change.sh` flags any change to one, so the maker cannot bend the metric.
 - A loop's branch reaches `main` only through a human pause: a pull request that a person reviews.
 
 ## Shared state
@@ -58,7 +59,7 @@ Pick can hand independent features to parallel Implement nodes, each on its own 
 ## Design questions, answered here
 
 1. **Which loops feed which?** Plan feeds the feature loop; the weekly cleanup (`docs/cleanup.md`) feeds Plan with `not_started` features.
-2. **Who owns the targets?** A human: each feature's `behavior` and `verify`, and the limits in `scripts/lib/limits.sh`.
+2. **Who owns the targets?** A human: each feature's `behavior`, `verify`, and `invariants`, and the limits in `scripts/lib/limits.sh`.
 3. **Who can veto or roll back?** The scripts veto every commit, the evaluator vetoes a feature, and the human vetoes the merge; any node rolls back a failed attempt with `git restore`.
 4. **Which metrics may move, and which stay frozen?** The code and the count of passing features move. Passing contracts, the verification levels, and the limits stay frozen unless a human changes them, with a `DECISIONS.md` entry.
 

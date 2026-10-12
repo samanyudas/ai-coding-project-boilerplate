@@ -15,7 +15,6 @@ Pick the loop by asking whether the work has an end:
 | Starts on an outside event | An event-driven GitHub Action, or a hook | CI fails or a pull request opens, and an agent run picks it up |
 
 `/loop` and schedules start each run fresh, without memory of the previous run.
-Use a goal run for work with a defined end.
 
 The goal contract for this repo, ready to paste:
 
@@ -51,7 +50,7 @@ Do not merge the pull request.
   - The verification method.
   - A stop condition that a tool can check.
   - The state file that the loop reads and writes.
-  - An iteration or time budget.
+  - An iteration, time, or token budget, so a cheap run cannot become an expensive one.
 - The maker never evaluates its own work.
 The scripts (`scripts/verify.sh`, `scripts/feature.sh verify`) evaluate what they can test.
 An independent evaluator evaluates the remaining requirements.
@@ -107,16 +106,14 @@ For work measured by a number (speed, accuracy, size), use a ratchet, as in Karp
    5. Append a row to the results log.
    6. Repeat the loop.
 
-## Four silent costs
-
-They grow the longer a loop runs.
+## Four silent costs that grow the longer a loop runs
 
 | Cost | What it is | Guard here |
 | --- | --- | --- |
 | Verification debt | "Looks fine" is not confirmed | Stop conditions are exit codes: `scripts/feature.sh remaining`, `scripts/end-session.sh` |
 | Comprehension rot | Code grows faster than you understand it | Read each loop's commits and `DECISIONS.md`, and use the weekly cleanup issue to find drift |
 | Cognitive surrender | Using the loop to avoid thinking instead of to amplify it | You own the direction: the feature list, its order, and every `behavior` |
-| Token blowout | Context grows with each iteration | State on disk, the restore hook after compaction, and a fresh session before the context window is about 60% full |
+| Token blowout | Context grows with each iteration | State on disk, the restore hook after compaction, and a context reset (`docs/cleanup.md`) before the window is 60% full |
 
 ## Starting small
 

@@ -24,6 +24,12 @@ Every tool and MCP server description is loaded on every turn, whether or not it
 Ten focused tools beat fifty overlapping ones.
 Add a tool only when a task needs it, and record it under Project tools.
 The harness audit removes the ones nobody uses.
+- **Trust.**
+A tool or MCP server description goes into the prompt as trusted text, so a malicious one can instruct the agent.
+Before you install one, read its source, pin its version, and record the version under Project tools.
+- **The simplest carrier.**
+Use a hook for a rule that must always hold.
+Use a script for a repeated command, and a tool only for access the agent lacks.
 - **One way to do each thing.**
 When a command gets repeated, make it a script in `scripts/` and list it here, rather than having each session improvise its own.
 
@@ -31,5 +37,5 @@ When a command gets repeated, make it a script in `scripts/` and list it here, r
 
 - It runs from any working directory and takes absolute paths, so it never depends on where it was launched.
 Requiring absolute paths sharply cuts tool-call errors.
-- It exits non-zero on failure and prints what failed and what to do next.
+- It is silent on success and loud on failure: it exits non-zero and prints what failed, why, and what to do next.
 - It is safe to re-run.

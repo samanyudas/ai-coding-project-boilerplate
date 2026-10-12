@@ -142,6 +142,8 @@ check_features() {
               else bad("feature id \(.id | tojson) must be a lowercase slug") end ),
             ( ("title", "behavior", "verify") as $k
               | if ($x[$k] | type) == "string" and $x[$k] != "" then empty else bad("\($x.id): missing \($k)") end ),
+            ( if .invariants == null or ((.invariants | type) == "array" and all(.invariants[]; type == "string" and . != "")) then empty
+              else bad("\(.id): invariants must be an array of non-empty strings") end ),
             ( if .state | IN("not_started", "active", "blocked", "passing") then empty
               else bad("\(.id): unknown state \(.state | tojson)") end ),
             ( if (.verify // "") | test("verify\\.sh") then bad("\(.id): verify must be a focused test, not scripts/verify.sh, which re-runs it") else empty end ),
@@ -271,6 +273,7 @@ run_static() {
 
 run_tests() {
   python3 scripts/test-ste.py
+  bash scripts/test-guard-command.sh
   # TODO(project): The unit and integration test commands.
   :
 }

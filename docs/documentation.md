@@ -53,6 +53,13 @@ For any doc past about 50 lines, use this structure:
 
 ## Writing agent instructions
 
+- Add a line to `AGENTS.md` or a doc only after a real failure, or for a fact the code cannot show.
+Delete it when a check enforces it or a newer model no longer needs it.
+- Write `AGENTS.md` and docs by hand.
+A generated file, such as one from `/init`, restates what the agent reads from the code and adds cost without signal.
+- Say what to do rather than what to avoid, because each mention of a thing draws the agent toward it.
+When a warning is necessary, make it specific, such as "never run `migrate:reset` against staging".
+
 - Give each sentence one main idea, with one instruction per sentence.
 - Put a condition before the instruction that depends on it.
 - Name the actor and use direct commands for procedures.

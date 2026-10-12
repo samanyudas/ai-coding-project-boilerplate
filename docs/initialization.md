@@ -36,6 +36,9 @@ Where a slot does not apply yet, write that and why.
 6. **Features.**
 Break the idea into small features in `docs/features.json`, in priority order, all `not_started`, each one finishable and verifiable alone in one session.
 Give each an `id` (a lowercase slug), a `title`, a measurable `behavior`, and a `verify` command: the exact focused test that proves it.
+Write the `behavior` as acceptance criteria a reviewer can check, with numbers, lists, or examples.
+"Handle errors appropriately" and "make it fast" accept any result, so `scripts/review-change.sh` flags words like these.
+Add optional `invariants`: what must stay true whatever the implementation, such as an unchanged API response shape or no PII in an export.
 `scripts/verify.sh` checks the shape, and `scripts/feature.sh list` shows the result.
 From here, `docs/loops.md` has the goal contract that works through the list without you as the trigger.
 7. **Checkpoint.**

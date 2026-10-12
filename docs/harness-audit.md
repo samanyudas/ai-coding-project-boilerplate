@@ -20,7 +20,8 @@ List every tool, MCP server, plugin, and hook configured for this project.
 Uninstall each one no recent task used, and keep `docs/tools.md` in sync.
 2. **Instructions.**
 Read `AGENTS.md` and every linked doc against the code.
-Fix or delete every rule that is stale, duplicated, or in conflict with another, that the agent follows without being told, or that a check now enforces.
+Fix or delete every rule that is stale, duplicated, or in conflict with another.
+Delete every rule that the agent follows without being told, that a check now enforces, or that a newer model no longer needs.
 Move each hard constraint that is not truly global into its topic or module doc.
 Split any doc near its size limit by topic.
 3. **Executable rules.**

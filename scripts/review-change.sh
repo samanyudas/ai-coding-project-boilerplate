@@ -4,7 +4,8 @@
 # - a module's files changed but its ARCHITECTURE.md or CONSTRAINTS.md did not;
 # - in a started project (no harness/), neither docs/features.json nor PROGRESS.md was updated;
 # - the change spans two or more components in docs/architecture.json, but no integration or end-to-end test changed;
-# - the contract (behavior or verify) of a feature that was passing changed: a frozen target only a human may move;
+# - the contract (behavior, verify, or invariants) of a feature that was passing changed: a frozen target only a human may move;
+# - a new or changed feature contract uses a vague word that any result satisfies;
 # - the change touches a high-stakes path in docs/architecture.json, where autonomy must stay low.
 # A reminder, not a gate: it always exits 0.
 # Usage: review-change.sh <git diff args>, e.g. `--cached` or `<base> HEAD`.
@@ -52,10 +53,24 @@ if [[ -n "$old_spec" ]] && grep -qxF docs/features.json <<<"$changed"; then
     $a.features[] | select(.state == "passing") | . as $o
     | ([$b.features[] | select(.id == $o.id)] | first) as $n
     | if $n == null then "\($o.id) (removed)"
-      elif $n.behavior != $o.behavior or $n.verify != $o.verify then $o.id
+      elif $n.behavior != $o.behavior or $n.verify != $o.verify or $n.invariants != $o.invariants then $o.id
       else empty end' | paste -sd, - | sed 's/,/, /g')"
   if [[ -n "$moved" ]]; then
-    warn docs/features.json "The contract of passing feature(s) $moved changed. A weaker behavior or verify makes the metric rise while the real outcome gets worse (Goodhart), so this target is frozen: get the approval of the human who owns it, and call it out in the pull request."
+    warn docs/features.json "The contract of passing feature(s) $moved changed. A weaker behavior, verify, or invariant makes the metric rise while the real outcome gets worse (Goodhart), so this target is frozen: get the approval of the human who owns it, and call it out in the pull request."
+  fi
+  # An agent satisfies a vague criterion with whatever it built, so name a number, a list, or an example.
+  vague="$(jq -rn --argjson a "$(git show "$old_spec" 2>/dev/null || echo '{"features":[]}')" \
+    --argjson b "$(git show "$new_spec" 2>/dev/null || echo '{"features":[]}')" '
+    def words: [.behavior // "", (.invariants // [])[]] | join(" ") | ascii_downcase
+      | [scan("\\b(appropriate(ly)?|proper(ly)?|reasonabl[ey]|user-friendly|intuitive|seamless(ly)?|robust|clean|modern|fast|quickly|efficient(ly)?|performant|scalable|as needed|if needed|etc|and so on|better|nice)\\b")[0]]
+      | unique;
+    $b.features[] | . as $n
+    | select(([$a.features[] | select(.id == $n.id)] | first) as $o
+        | $o == null or $o.behavior != $n.behavior or $o.invariants != $n.invariants)
+    | ($n | words) as $w | select($w | length > 0)
+    | "\($n.id) (\($w | join(", ")))"' | paste -sd';' - | sed 's/;/; /g')"
+  if [[ -n "$vague" ]]; then
+    warn docs/features.json "Vague words in feature contract(s): $vague. Any result satisfies a vague criterion, so each agent decides what it means. Replace each with a number, a list, or an example a reviewer can check."
   fi
 fi
 

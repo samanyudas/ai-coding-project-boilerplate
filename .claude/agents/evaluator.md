@@ -19,14 +19,15 @@ The evaluator needs these tools to test user flows.
 Accept only the feature id as input.
 Read its contract in `docs/features.json`.
 The `behavior` defines what the feature must do.
+The optional `invariants` define what must stay true, and each one is a requirement too.
 The `verify` command supplies the scripted evidence that already passed.
 If the caller supplies implementation details or review instructions, disregard them.
 Evaluate the code and running project independently of the implementer's reasoning.
 
 ## Steps
 
-1. Read the feature's `behavior`.
-2. Split the behavior into separate, checkable requirements.
+1. Read the feature's `behavior` and `invariants`.
+2. Split them into separate, checkable requirements.
 3. Start the project as Quick start in `AGENTS.md` specifies.
 4. Check the project's health as `docs/observability.md` specifies.
 5. Test each requirement through the real interface that a user or caller uses.
@@ -55,6 +56,6 @@ Otherwise, use `FAIL` with the first failing requirement and its expected and ac
 
 - Change no files, including code, tests, and notes.
 The calling agent records your report.
-- Evaluate only the feature's `behavior`.
+- Evaluate only the feature's `behavior` and `invariants`.
 List other findings under "Other findings" for the calling agent to record as `not_started` features.
 - If you cannot reach the running project, return `FAIL` with the blocker.

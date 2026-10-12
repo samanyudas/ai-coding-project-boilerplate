@@ -27,6 +27,24 @@ Clean up each thing as soon as you are done with it, the way reference counting 
 
 It lists every problem it finds and exits non-zero until all are fixed.
 
+## Context resets
+
+A long session gets worse as its context window fills, and context once loaded cannot be freed.
+Keep a session near 40% of its context window, and wrap up before it passes 60%.
+These signs show a degraded session:
+
+- The same tool call repeats three or more times with no change in result.
+- The agent breaks a rule it followed earlier.
+- The agent works on something other than the active feature.
+- Edits get sloppier and miss more cases.
+- The agent agrees by reflex ("You are absolutely right") instead of reasoning about the task.
+
+When two signs appear, or the window nears 60%, do not push through:
+
+1. Write the handoff in the active feature notes in `PROGRESS.md`: the goal, the approach, the steps done, and the current failure.
+2. Commit verified progress, and discard the rest.
+3. Start a fresh session, which `scripts/restore-state.sh` restores from disk.
+
 ## Periodic cleanup: weekly
 
 A full pass over the whole system, the way a tracing collector finds what reference counting missed:
