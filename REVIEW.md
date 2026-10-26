@@ -41,9 +41,11 @@ Then list the findings, Important first.
 ## Converging
 
 - The author fixes each Important finding, or answers it with a reason.
-A Nit or Pre-existing finding never blocks.
-- After the first cycle, review only the commits since the last review.
+- A Nit or Pre-existing finding never blocks.
+The author resolves it with a short reason, or records it as a `not_started` feature.
+- After the first cycle, review only the changes since the last review, as `.claude/agents/reviewer.md` describes.
 - Never report a finding again after the author fixed or answered it.
-- After three cycles that still have Important findings, stop patching.
-The author rethinks the approach, or asks a human.
+- After three cycles that still have Important findings, stop patching and discard the attempt.
+In a loop, block the feature (`docs/loops.md`).
+In an interactive session, rethink the approach or ask a human.
 - When reviews raise the same issue twice, add a check for it (`docs/documentation.md`).

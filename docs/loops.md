@@ -25,14 +25,13 @@ For each feature:
 1. Run scripts/feature.sh start <id>.
 2. Implement the feature.
 3. Run scripts/feature.sh verify <id>.
-4. Give the reviewer subagent only the feature id and the diff range HEAD.
-5. Fix each Important finding, or record in PROGRESS.md why it is not a bug.
-On later cycles, give the reviewer only the commits since its last review.
-6. Give the evaluator subagent only the feature id.
-7. Record both reports in PROGRESS.md.
-8. Fix failures and repeat verification, review, and evaluation until the verdict is PASS.
+4. Give the reviewer subagent only the inputs in .claude/agents/reviewer.md.
+5. If it reports an Important finding, fix it or record in PROGRESS.md why it is not a bug, then go back to step 3.
+6. When the reviewer returns CLEAN, give the evaluator subagent only the feature id.
+7. If the evaluator returns FAIL, fix the failure, then go back to step 3.
+8. Record both reports in PROGRESS.md.
 9. Commit the verified feature.
-After three failed attempts or three review cycles with the same cause:
+After three failed attempts with the same cause, or an Important finding after the third review cycle:
 1. Discard the attempt.
 2. Run scripts/feature.sh block <id> "<reason>".
 3. Continue with the next feature.

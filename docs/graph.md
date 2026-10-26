@@ -7,7 +7,7 @@ A single loop defers those decisions and hides its failures; written down, they 
 ## Hard constraints
 
 - The verify nodes get a fresh context, never the implementer's reasoning.
-The reviewer receives only the feature id and a diff range, and judges the diff against the codebase.
+The reviewer receives only the inputs in `.claude/agents/reviewer.md`, and judges the diff against the codebase.
 The evaluator receives only the feature id, and judges the code and the running project.
 - Nodes share data only through the shared state below; each node's own context stays private.
 - A passing feature's contract (`behavior`, `verify`, and `invariants`) is a frozen target that only a human changes.
@@ -51,12 +51,12 @@ The thread id of a run is its branch name: one branch per loop run, so its commi
 | Implement | The code and tests are written | Check | Sequential |
 | Check | A level or the flow fails | Implement, starting from the failing log | Retry |
 | Check | Everything passes | Code review | Sequential |
-| Code review | An Important finding, in cycle one or two | Implement, with the findings; the next cycle reviews only the new commits | Retry |
-| Code review | An Important finding after three cycles | Research, to rethink the approach, then Implement | Conditional |
+| Code review | An Important finding, in cycle one or two | Implement, with the findings; the next cycle reviews only the new changes | Retry |
+| Code review | An Important finding after the third cycle | Discard the attempt (`git restore`), Block, then Pick | Rollback |
 | Code review | No Important finding | Evaluate | Sequential |
 | Evaluate | FAIL | Implement, with the verification report | Retry |
 | Evaluate | PASS | Commit, then Pick | Sequential |
-| Implement | Three attempts or three review cycles failed on the same cause, or the blocker is outside the code | Discard the attempt (`git restore`), Block, then Pick | Rollback |
+| Implement | Three attempts failed on the same cause, or the blocker is outside the code | Discard the attempt (`git restore`), Block, then Pick | Rollback |
 | Review | Rejected | Implement, on the same branch | Rollback |
 | Review | Approved | Merge into `main` | Sequential |
 
@@ -107,5 +107,5 @@ Treat headline gains from orchestration as unproven until you have read the orig
 ## Checklist
 
 - [ ] Every node in the graph you changed names what implements it, and `scripts/verify.sh` passes.
-- [ ] The reviewer got only the feature id and a diff range, and the evaluator got only the feature id.
+- [ ] The reviewer got only the inputs in `.claude/agents/reviewer.md`, and the evaluator got only the feature id.
 - [ ] No passing contract changed without a human's approval.

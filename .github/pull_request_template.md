@@ -15,5 +15,5 @@
 
 ## How to revert
 
-<!-- One step, such as `git revert <sha>`. -->
+<!-- One step, such as `git revert <sha>` of the squash-merge commit. -->
 <!-- List any data, migration, config, or feature-flag steps that a revert alone does not undo. -->

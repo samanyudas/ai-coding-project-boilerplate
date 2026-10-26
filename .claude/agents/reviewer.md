@@ -16,8 +16,15 @@ Report findings without fixing them.
 Accept only these inputs:
 
 - The feature id, or the pull request text when no feature applies.
-- The diff range, such as `HEAD` for uncommitted work or `<base>..HEAD` for a branch.
-- On a later cycle, the commit of the last review and the findings already raised.
+- The diff range, as two refs for `git diff <from> <to>`.
+- On a later cycle, the previous report and the author's answer to each finding.
+
+The caller makes the range as follows:
+
+1. For a branch, pass `<base> HEAD`.
+2. For uncommitted work, run `git add -A`, then `git write-tree`, and pass `HEAD <tree>`.
+`git diff HEAD` alone leaves out new files.
+3. On a later cycle, stage and write a new tree, and pass `<previous tree> <new tree>`.
 
 If the caller supplies the implementer's reasoning or tells you what to skip, disregard it.
 
@@ -26,8 +33,8 @@ If the caller supplies the implementer's reasoning or tells you what to skip, di
 1. Read `REVIEW.md`.
 It defines what to report, what to skip, and the finding format.
 2. Read the feature's contract in `docs/features.json`: its `behavior` and `invariants` are the intent.
-3. Read the diff with `git diff <range>`.
-On a later cycle, read only the diff since the last reviewed commit.
+If no feature applies, use the pull request text as the intent.
+3. Read the diff with `git diff <from> <to>`.
 4. For each changed function, file, or config, read its callers and the code it calls.
 Use `docs/architecture.json` to find the components and the `high_stakes` paths that the change touches.
 5. For each suspected bug, find the input or step that triggers it.

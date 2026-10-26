@@ -34,11 +34,12 @@ These are repository settings, not files, so a fork does not inherit them.
 Set them on the default branch with branch protection or a ruleset:
 
 1. Require a pull request and the `verify` status check before merge.
-2. Require every review conversation to be resolved, so the author fixes or answers each finding.
+2. Require every review conversation to be resolved, so the author fixes or answers each finding (`REVIEW.md`).
 3. Dismiss stale approvals when someone pushes a new commit.
 4. Require a code owner's review, with a `CODEOWNERS` entry for each `high_stakes` path.
 5. Give write access only to people, because GitHub counts an approval from any account with write access.
-6. Use a merge queue once several branches merge each day, so checks run on `main` with each change applied.
+6. Allow only squash merges, so one `git revert` undoes one pull request.
+7. Use a merge queue once several branches merge each day, so checks run on `main` with each change applied.
 
 ## Checklist
 

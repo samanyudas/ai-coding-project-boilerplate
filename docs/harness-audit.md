@@ -15,7 +15,7 @@ Look for the harness gap before switching the model or retrying.
 
 Every layer misses some bugs, so plan the response before the next one merges.
 
-1. Revert first with one `git revert`, then fix forward on a new branch.
+1. Revert first with one `git revert` of the squash-merge commit, then fix forward on a new branch.
 2. Name the first layer that should have caught it: `scripts/verify.sh`, `scripts/review-change.sh`, the reviewer, the evaluator, or the human review.
 3. Add a check to that layer, or a line to `REVIEW.md`, that would have caught it.
 4. Add a row to the Incident log below.
@@ -45,6 +45,7 @@ Read the failure messages too: each must say what broke, why, and how to fix it.
 Check that a recent failure could be diagnosed from `.harness/runs/` and the project's logs alone.
 Read the Incident log and the month's reverts.
 Each row needs a check in the layer that it names.
+Compare the revert count with last month's, because a rise means a layer got weaker.
 4. **Environment.**
 Run `scripts/setup.sh` in a fresh clone.
 It must succeed with no manual steps.
@@ -96,7 +97,6 @@ Run the tasks on the old version and the new one, and compare:
 | Runtime | Decrease |
 | Task success rate | Maintain or improve |
 | Constraint compliance | Maintain or improve |
-| Reverts and incidents | Maintain or decrease |
 | Instruction signal-to-noise ratio | Increase |
 
 Signal-to-noise ratio is the relevant instructions loaded for a task divided by all instructions loaded for it.

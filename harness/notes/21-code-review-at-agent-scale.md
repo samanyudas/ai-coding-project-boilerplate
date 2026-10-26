@@ -117,17 +117,21 @@ In one line: layer automated reviews in front of a risk-scaled human approval, m
 
 ## Repo changes
 
-- `REVIEW.md`: what counts as a bug here, what to skip, the finding format (file and line, severity Important, Nit, or Pre-existing, bug class, failure scenario), a report that opens with counts or "No issues found", and convergence rules (re-review only new commits, no repeats, three cycles then rethink).
+- `REVIEW.md`: what counts as a bug here, what to skip, the finding format (file and line, severity Important, Nit, or Pre-existing, bug class, failure scenario), a report that opens with counts or "No issues found", and convergence rules (re-review only new changes, no repeats, Nits never block, three cycles then discard the attempt).
 `scripts/verify.sh` holds it to the topic-doc size limit, so it stays brief.
-- `.claude/agents/reviewer.md`: a fresh-context subagent that receives only the feature id and a diff range, reads the diff against the codebase and the feature contract, and reports findings in the `REVIEW.md` format without changing files.
+- `.claude/agents/reviewer.md`: a fresh-context subagent that receives only the feature id (or pull request text), a diff range, and on later cycles the previous report with the author's answers.
+It reads the diff against the codebase and the feature contract, and reports findings in the `REVIEW.md` format without changing files.
+Uncommitted work is staged and snapshotted with `git write-tree`, so the range includes new files and a later cycle can diff one snapshot against the next.
 - `.github/pull_request_template.md`: Summary, Testing, Risk (with changed `high_stakes` paths), and How to revert.
-- `docs/architecture.json`: the gates themselves ship as `high_stakes` paths (`.github/workflows/`, `.githooks/`, `scripts/`, `.claude/`), so `scripts/review-change.sh` asks for a human read of any change to them.
+- `docs/architecture.json`: the gates themselves ship as `high_stakes` paths (CI workflows, the pre-commit hook, the gate scripts and their shared limits, agent settings and subagents, and `REVIEW.md`), so `scripts/review-change.sh` asks for a human read of any change to them.
 `docs/conventions.md` and `docs/initialization.md` say to keep those entries.
-- `docs/graph.md`: a Code review node between Check and Evaluate, its routing (Important findings retry, three cycles go to Research), and the reviewer under the fresh-context constraint.
-- `docs/loops.md`: the goal contract runs the reviewer and caps review cycles, three review cycles count as three failed attempts, and the pull request follows the template.
+- `docs/graph.md`: a Code review node between Check and Evaluate, its routing (an Important finding goes back through Implement and Check, and one after the third cycle discards the attempt and blocks the feature), and the reviewer under the fresh-context constraint.
+- `docs/loops.md`: the goal contract runs Check, then the reviewer, then the evaluator, and every fix goes back to Check.
+An Important finding after the third review cycle blocks the feature, and the pull request follows the template.
+- `.claude/agents/evaluator.md`: it runs after the reviewer returns CLEAN.
 The comprehension-rot guard adds an explainer before changing an unfamiliar module.
-- `docs/security.md`: an agent's approval never satisfies a required human approval, an approval covers one commit, and a Merge settings reference for branch protection and the merge queue.
-- `docs/harness-audit.md`: a "When a bad change merges" procedure (revert first, name the layer that should have caught it, add the check), an incident log that doubles as the reviewer's eval set, and revert rate as a guardrail metric.
+- `docs/security.md`: an agent's approval never satisfies a required human approval, an approval covers one commit, and a Merge settings reference for branch protection, squash-only merges, and the merge queue.
+- `docs/harness-audit.md`: a "When a bad change merges" procedure (revert first, name the layer that should have caught it, add the check), an incident log that doubles as the reviewer's eval set, and the monthly revert count as a guardrail.
 - `AGENTS.md`: the repo map lists the review files, and the Definition of Done requires a fresh-context review with every Important finding fixed or answered.
 
 ## Design choices
@@ -144,12 +148,22 @@ Merging them would hand the evaluator the implementation, which breaks its indep
 
 Why the review cycle cap lives in prose and in the goal contract, not in a script:
 no script sees how many times a subagent was called.
-The cap is counted by the caller, and three cycles join the existing three-failed-attempts rule, so a stuck loop still ends in Block.
+The cap is counted by the caller, and an Important finding after the third cycle ends in the same Block as three failed attempts, so a stuck loop always stops.
+The graph, the goal contract, and `REVIEW.md` give that one outcome, because two routes for one condition let an agent pick the one that keeps going.
+
+Why the diff range is a snapshot tree instead of `HEAD` or new commits:
+`git diff HEAD` leaves out new files, and fixes stay uncommitted until the feature is verified, so there are no new commits to review.
+`git add -A` and `git write-tree` give a snapshot without a commit, and two snapshots give the exact changes of one cycle.
 
 Why the gates are `high_stakes` by default:
 the post names CI workflow files as always needing a human, and every check here can be weakened by editing the script that runs it.
 A change to a gate hurts every later change, which is the widest blast radius in the repo.
-The entries are only warnings, so editing the boilerplate itself stays possible.
+Only the gates are listed, not all of `scripts/` and `.claude/`.
+Routine feature work edits `scripts/setup.sh` and adds skills, and a warning on every such commit would teach people to ignore it.
+
+Why squash-only merges:
+a merge commit needs `git revert -m 1`, which an incident responder under pressure gets wrong.
+With squash merges, one pull request is one commit and one `git revert` undoes it.
 
 Why no parallel bug-hunting agents, voting, or hosted reviewer workflow:
 they need a model account, a secret in CI, and tuning against incidents this boilerplate does not have yet.
