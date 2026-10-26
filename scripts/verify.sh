@@ -89,7 +89,7 @@ check_doc_sizes() {
     if [[ -n "$doc" ]]; then
       check_max_lines "$doc" "$DOC_MAX_LINES" || ok=1
     fi
-  done <<<"$(printf '%s\n' docs/*.md; module_docs)"
+  done <<<"$(printf '%s\n' REVIEW.md docs/*.md; module_docs)"
   return "$ok"
 }
 

@@ -1,6 +1,18 @@
 {
   "components": [],
   "integration_tests": [],
-  "high_stakes": [],
+  "high_stakes": [
+    { "path": ".github/workflows/", "why": "CI runs the gates, so a weakened workflow lets every later bad change merge unseen" },
+    { "path": ".githooks/", "why": "The pre-commit hook runs the gates, so a weakened hook lets every later bad change commit unseen" },
+    { "path": "scripts/verify.sh", "why": "The Definition of Done, so a weakened level passes every later bad change" },
+    { "path": "scripts/review-change.sh", "why": "The change review, so a weakened warning hides every later risky change" },
+    { "path": "scripts/feature.sh", "why": "The only state changer, so a weakened one marks features passing without evidence" },
+    { "path": "scripts/guard-command.sh", "why": "The command guard, so a weakened one lets agents skip hooks, force-push, or delete" },
+    { "path": "scripts/lib/", "why": "Limits and run evidence the gates share, so a weakened limit relaxes every gate at once" },
+    { "path": ".claude/settings.json", "why": "Agent hooks and permissions, so a weakened one lets agents skip checks" },
+    { "path": ".claude/agents/", "why": "The reviewer and evaluator, so a weakened one lets agents judge their own work" },
+    { "path": "docs/architecture.json", "why": "The high-stakes list and architecture rules, so a removed entry silently turns off a gate" },
+    { "path": "REVIEW.md", "why": "What the reviewer reports, so a deleted line lets a class of bug through every review" }
+  ],
   "rules": []
 }

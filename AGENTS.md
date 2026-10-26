@@ -35,7 +35,7 @@ Write anything that matters into a file here.
 2. Write code against the exact versions in Tech stack.
 3. Commit only through the pre-commit hook, with `scripts/verify.sh` passing.
 4. Commit each finished, verified unit immediately with its code, tests, docs, and updated state (`docs/features.json`, `PROGRESS.md`).
-Discard a failed attempt with `git restore` or by dropping its branch.
+Discard a failed attempt with `git add -A && git restore --staged --worktree .`, which also drops staged and new files, or drop its branch.
 5. WIP = 1 applies per agent.
 Each parallel agent takes a different, independent feature on its own branch in its own worktree.
 Merge only finished, verified work.
@@ -64,7 +64,8 @@ On failure, fix the feature or run `scripts/feature.sh block <id> "<reason>"`.
 - `docs/tools.md`, `docs/documentation.md` - Before adding tools, scripts, rules, or docs, or editing agent instructions, read tool usage, rule placement, and wording.
 - `docs/observability.md` - Before diagnosing a failure or adding code that runs, read about logs, health checks, run evidence, and verification reports.
 - `docs/loops.md`, `docs/graph.md`, `.claude/agents/evaluator.md` - Before configuring loops, changing the process, or judging features, read routing, shared state, human review, and independent evaluation.
-- `docs/harness-audit.md`, `docs/cleanup.md` - Read about harness repair, audits, cleanup, and context resets when tasks fail, results worsen, a session degrades, or a session ends.
+- `REVIEW.md`, `.claude/agents/reviewer.md`, `.github/pull_request_template.md` - Before you review a diff or open a pull request, read what to report, the cycle limit, and the sections.
+- `docs/harness-audit.md`, `docs/cleanup.md` - Read about harness repair, audits, cleanup, and context resets after failed tasks, bad merges, worse results, or degraded or ending sessions.
 - `scripts/setup.sh`, `scripts/check-ready.sh`, `scripts/restore-state.sh`, `scripts/end-session.sh`, `scripts/scan.sh`, `scripts/check-ste.py` - Repeatable setup from a fresh clone, readiness checks, session restoration, handoff checks, and weekly drift and writing reports.
 - `.claude/settings.json`, `scripts/guard-command.sh` - Claude Code hooks that restore state after start and compaction, and block hook skips, forced pushes, and deletes of `/` or home.
 - `scripts/verify.sh`, `scripts/review-change.sh`, `scripts/test-ste.py`, `scripts/test-guard-command.sh`, `.githooks/pre-commit`, `.github/workflows/verify.yml` - The leveled Definition of Done, change review, and regression tests, run before each commit and on CI pushes.
@@ -82,6 +83,7 @@ On failure, fix the feature or run `scripts/feature.sh block <id> "<reason>"`.
 
 - [ ] New or changed behavior has a test, and a change across components has an integration or end-to-end test that crosses them.
 `scripts/feature.sh verify <id>` passed levels 0 to 2 and the feature's end-to-end flow, then marked it `passing`.
+- [ ] A fresh-context reviewer read the diff as `REVIEW.md` describes, and the author fixed or answered each Important finding.
 - [ ] An independent evaluator received only the feature id and walked the user flow on the running project.
 Use the `evaluator` subagent, a fresh session, or another model, never the agent that wrote the code.
 Its verification report (`docs/observability.md`) provides evidence for every requirement.

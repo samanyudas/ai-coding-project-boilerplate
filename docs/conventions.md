@@ -13,6 +13,7 @@ The part a tool can check lives in `docs/architecture.json`, which `scripts/veri
 - `integration_tests`: the paths where tests that cross components live.
 - `high_stakes`: each path (a file or directory) where a quiet error hurts users or costs money, such as auth, security, payments, or user data, with a `why` that names who gets hurt.
 `scripts/review-change.sh` flags every change to one, because a human must read that diff and approve its merge.
+The boilerplate lists the gates (CI, hooks, the gate scripts, agent settings, `REVIEW.md`, and this file), because a weakened gate passes every later bad change.
 - `rules`: each forbids a pattern (an extended regex) in a set of files, such as UI code importing the database layer:
 
 ```json

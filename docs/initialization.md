@@ -32,6 +32,8 @@ Break something at each level on purpose and confirm `scripts/verify.sh` stops a
 Fill every remaining `TODO(project)` slot: conventions, security, tools, and hard constraints.
 Declare the components and integration test paths in `docs/architecture.json`, with a rule for each boundary the design relies on.
 Declare each `high_stakes` path, such as auth, security, payments, or user data, with who gets hurt when it is wrong.
+Keep the entries for the gates that the boilerplate lists.
+Fill the project slots in `REVIEW.md`: the failures specific to this project, and the generated paths to skip.
 Where a slot does not apply yet, write that and why.
 6. **Features.**
 Break the idea into small features in `docs/features.json`, in priority order, all `not_started`, each one finishable and verifiable alone in one session.

@@ -1,7 +1,7 @@
 ---
 name: evaluator
 description: >-
-  Evaluate a feature after `scripts/feature.sh verify <id>` passes.
+  Evaluate a feature after `scripts/feature.sh verify <id>` passes and the reviewer returns CLEAN.
   Walk its user flow and check every requirement against runtime evidence.
   The evaluator must be independent of the agent that wrote the code.
 tools: Read, Grep, Glob, Bash
