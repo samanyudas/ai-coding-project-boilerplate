@@ -48,7 +48,7 @@ pressure() { # <file> <lines> <limit>
 }
 found=false
 pressure AGENTS.md "$(wc -l <AGENTS.md | tr -d ' ')" "$AGENTS_MAX_LINES" && found=true
-for doc in docs/*.md $(git ls-files | grep -E '(^|/)(ARCHITECTURE|CONSTRAINTS)\.md$'); do
+for doc in REVIEW.md docs/*.md $(git ls-files | grep -E '(^|/)(ARCHITECTURE|CONSTRAINTS)\.md$'); do
   pressure "$doc" "$(wc -l <"$doc" | tr -d ' ')" "$DOC_MAX_LINES" && found=true
 done
 constraints="$(awk '/^## /{inside = ($0 == "## Hard constraints"); next} inside' AGENTS.md | grep -cE '^[0-9]+\. ')"

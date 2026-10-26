@@ -11,6 +11,21 @@ Look for the harness gap before switching the model or retrying.
 2. Ask why it failed, and fix that part in the repo, as an executable rule where possible: a check in `scripts/verify.sh`, a hook, or a CI step.
 3. Re-run the task.
 
+## When a bad change merges
+
+Every layer misses some bugs, so plan the response before the next one merges.
+
+1. Revert first with one `git revert`, then fix forward on a new branch.
+2. Name the first layer that should have caught it: `scripts/verify.sh`, `scripts/review-change.sh`, the reviewer, the evaluator, or the human review.
+3. Add a check to that layer, or a line to `REVIEW.md`, that would have caught it.
+4. Add a row to the Incident log below.
+The person who merged the change does this, because they hold the most context, and the review blames the system, not them.
+
+The Incident log is the reviewer's evaluation set.
+After a change to `REVIEW.md`, `.claude/agents/reviewer.md`, or the reviewer's model, run the reviewer on each logged change.
+Count how many logged bugs it reports.
+Also run it on recent clean changes, and count findings that would have caused harm if acted on.
+
 ## Monthly checklist
 
 `.github/workflows/maintenance.yml` opens a "Harness audit" issue on the 1st of each month as the reminder; the weekly code cleanup is in `docs/cleanup.md`.
@@ -28,6 +43,8 @@ Split any doc near its size limit by topic.
 For each written rule agents still break, and each issue reviews raised more than once, add a check: a rule in `docs/architecture.json`, a check in `scripts/verify.sh`, a hook, or a CI step.
 Read the failure messages too: each must say what broke, why, and how to fix it.
 Check that a recent failure could be diagnosed from `.harness/runs/` and the project's logs alone.
+Read the Incident log and the month's reverts.
+Each row needs a check in the layer that it names.
 4. **Environment.**
 Run `scripts/setup.sh` in a fresh clone.
 It must succeed with no manual steps.
@@ -79,6 +96,7 @@ Run the tasks on the old version and the new one, and compare:
 | Runtime | Decrease |
 | Task success rate | Maintain or improve |
 | Constraint compliance | Maintain or improve |
+| Reverts and incidents | Maintain or decrease |
 | Instruction signal-to-noise ratio | Increase |
 
 Signal-to-noise ratio is the relevant instructions loaded for a task divided by all instructions loaded for it.
@@ -88,3 +106,8 @@ Keep the restructure only if success and compliance hold.
 
 | Date | Findings | Changes |
 | --- | --- | --- |
+
+## Incident log
+
+| Date | Change | Bug (file and line) | Layer that should have caught it | Check added |
+| --- | --- | --- | --- | --- |

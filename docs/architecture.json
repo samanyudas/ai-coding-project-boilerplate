@@ -1,6 +1,11 @@
 {
   "components": [],
   "integration_tests": [],
-  "high_stakes": [],
+  "high_stakes": [
+    { "path": ".github/workflows/", "why": "CI runs the gates, so a weakened workflow lets every later bad change merge unseen" },
+    { "path": ".githooks/", "why": "The pre-commit hook runs the gates, so a weakened hook lets every later bad change commit unseen" },
+    { "path": "scripts/", "why": "The verification, review, setup, and state scripts are the gates, so a weakened script passes every later bad change" },
+    { "path": ".claude/", "why": "Agent hooks, permissions, and the evaluator and reviewer definitions live here, so a weakened one lets agents skip checks or judge their own work" }
+  ],
   "rules": []
 }

@@ -6,7 +6,9 @@ A single loop defers those decisions and hides its failures; written down, they 
 
 ## Hard constraints
 
-- The verify nodes get a fresh context: the evaluator receives only the feature id and judges the code and the running project, never the implementer's reasoning.
+- The verify nodes get a fresh context, never the implementer's reasoning.
+The reviewer receives only the feature id and a diff range, and judges the diff against the codebase.
+The evaluator receives only the feature id, and judges the code and the running project.
 - Nodes share data only through the shared state below; each node's own context stays private.
 - A passing feature's contract (`behavior`, `verify`, and `invariants`) is a frozen target that only a human changes.
 `scripts/review-change.sh` flags any change to one, so the maker cannot bend the metric.
@@ -33,6 +35,7 @@ The thread id of a run is its branch name: one branch per loop run, so its commi
 | Implement | Agent with its own loop | Writes the code and tests for the active feature | A maker session following `AGENTS.md` |
 | Research | Agent | Answers what the implementer cannot decide alone | A fresh session or subagent; findings go to `DECISIONS.md` |
 | Check | Code | Levels 0 to 2, then the feature's flow | `scripts/feature.sh` (`verify`), `scripts/verify.sh` |
+| Code review | Agent, fresh context | Reads the diff against the codebase and the contract; returns findings by severity | `.claude/agents/reviewer.md`, `REVIEW.md` |
 | Evaluate | Agent, fresh context | Walks the flow on the running project; returns PASS or FAIL with evidence | `.claude/agents/evaluator.md` |
 | Commit | Code | Gates and records the unit | `.githooks/pre-commit` |
 | Block | Code | Parks a feature that cannot pass, with its reason | `scripts/feature.sh` (`block`) |
@@ -47,10 +50,13 @@ The thread id of a run is its branch name: one branch per loop run, so its commi
 | Implement | The behavior is ambiguous, or information is missing | Research, then back to Implement | Conditional |
 | Implement | The code and tests are written | Check | Sequential |
 | Check | A level or the flow fails | Implement, starting from the failing log | Retry |
-| Check | Everything passes | Evaluate | Sequential |
+| Check | Everything passes | Code review | Sequential |
+| Code review | An Important finding, in cycle one or two | Implement, with the findings; the next cycle reviews only the new commits | Retry |
+| Code review | An Important finding after three cycles | Research, to rethink the approach, then Implement | Conditional |
+| Code review | No Important finding | Evaluate | Sequential |
 | Evaluate | FAIL | Implement, with the verification report | Retry |
 | Evaluate | PASS | Commit, then Pick | Sequential |
-| Implement | Three attempts failed on the same cause, or the blocker is outside the code | Discard the attempt (`git restore`), Block, then Pick | Rollback |
+| Implement | Three attempts or three review cycles failed on the same cause, or the blocker is outside the code | Discard the attempt (`git restore`), Block, then Pick | Rollback |
 | Review | Rejected | Implement, on the same branch | Rollback |
 | Review | Approved | Merge into `main` | Sequential |
 
@@ -60,7 +66,7 @@ Pick can hand independent features to parallel Implement nodes, each on its own 
 
 1. **Which loops feed which?** Plan feeds the feature loop; the weekly cleanup (`docs/cleanup.md`) feeds Plan with `not_started` features.
 2. **Who owns the targets?** A human: each feature's `behavior`, `verify`, and `invariants`, and the limits in `scripts/lib/limits.sh`.
-3. **Who can veto or roll back?** The scripts veto every commit, the evaluator vetoes a feature, and the human vetoes the merge; any node rolls back a failed attempt with `git restore`.
+3. **Who can veto or roll back?** The scripts veto every commit, the reviewer and the evaluator veto a feature, and the human vetoes the merge; any node rolls back a failed attempt with `git restore`.
 4. **Which metrics may move, and which stay frozen?** The code and the count of passing features move. Passing contracts, the verification levels, and the limits stay frozen unless a human changes them, with a `DECISIONS.md` entry.
 
 ## Anchors
@@ -101,5 +107,5 @@ Treat headline gains from orchestration as unproven until you have read the orig
 ## Checklist
 
 - [ ] Every node in the graph you changed names what implements it, and `scripts/verify.sh` passes.
-- [ ] The evaluator was given only the feature id.
+- [ ] The reviewer got only the feature id and a diff range, and the evaluator got only the feature id.
 - [ ] No passing contract changed without a human's approval.

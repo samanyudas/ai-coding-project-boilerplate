@@ -25,11 +25,14 @@ For each feature:
 1. Run scripts/feature.sh start <id>.
 2. Implement the feature.
 3. Run scripts/feature.sh verify <id>.
-4. Give the evaluator subagent only the feature id.
-5. Record its report in PROGRESS.md.
-6. Fix failures and repeat verification and evaluation until the verdict is PASS.
-7. Commit the verified feature.
-After three failed attempts with the same cause:
+4. Give the reviewer subagent only the feature id and the diff range HEAD.
+5. Fix each Important finding, or record in PROGRESS.md why it is not a bug.
+On later cycles, give the reviewer only the commits since its last review.
+6. Give the evaluator subagent only the feature id.
+7. Record both reports in PROGRESS.md.
+8. Fix failures and repeat verification, review, and evaluation until the verdict is PASS.
+9. Commit the verified feature.
+After three failed attempts or three review cycles with the same cause:
 1. Discard the attempt.
 2. Run scripts/feature.sh block <id> "<reason>".
 3. Continue with the next feature.
@@ -38,7 +41,8 @@ The goal is complete when scripts/feature.sh remaining exits 0 and scripts/end-s
 Stop after 10 features even if the goal remains incomplete.
 Push the branch.
 Open a pull request for review.
-In the pull request, name each changed high_stakes path from docs/architecture.json.
+Fill in every section of .github/pull_request_template.md.
+Under Risk, name each changed high_stakes path from docs/architecture.json.
 Report what remains.
 Do not merge the pull request.
 ```
@@ -53,8 +57,8 @@ Do not merge the pull request.
   - An iteration, time, or token budget, so a cheap run cannot become an expensive one.
 - The maker never evaluates its own work.
 The scripts (`scripts/verify.sh`, `scripts/feature.sh verify`) evaluate what they can test.
-An independent evaluator evaluates the remaining requirements.
-Use the `evaluator` subagent in `.claude/agents/evaluator.md`, a fresh session, or another model.
+An independent reviewer reads the diff, and an independent evaluator evaluates the remaining requirements.
+Use the `reviewer` and `evaluator` subagents in `.claude/agents/`, a fresh session, or another model.
 - Store state on disk rather than only in a session.
 Each iteration reads `docs/features.json` and `PROGRESS.md` and leaves both current.
 The next run can then resume a stopped run.
@@ -87,7 +91,7 @@ Passing checks cannot show that a feature should exist.
 | Worktrees | One isolated checkout per parallel agent | Hard constraint 5, `git worktree add`, or `isolation: worktree` on a subagent |
 | Skills | Project knowledge written once, read every run | `docs/`, and `.claude/skills/<name>/SKILL.md` for a procedure agents repeat (`docs/cleanup.md`) |
 | Connectors | Access to real tools: issues, databases, chat, pull requests | MCP servers and plugins, listed in `docs/tools.md` |
-| Sub-agents | Separate maker and checker | `.claude/agents/evaluator.md` |
+| Sub-agents | Separate maker and checker | `.claude/agents/reviewer.md`, `.claude/agents/evaluator.md` |
 | External state | Store the state that the other primitives need | `docs/features.json`, `PROGRESS.md`, `DECISIONS.md`, git, `.harness/runs/` |
 
 ## Ratchet loops
@@ -111,7 +115,7 @@ For work measured by a number (speed, accuracy, size), use a ratchet, as in Karp
 | Cost | What it is | Guard here |
 | --- | --- | --- |
 | Verification debt | "Looks fine" is not confirmed | Stop conditions are exit codes: `scripts/feature.sh remaining`, `scripts/end-session.sh` |
-| Comprehension rot | Code grows faster than you understand it | Read each loop's commits and `DECISIONS.md`, and use the weekly cleanup issue to find drift |
+| Comprehension rot | Code grows faster than you understand it | Read each loop's commits and `DECISIONS.md`. Ask an agent to explain a module before you change it. Use the weekly cleanup issue to find drift |
 | Cognitive surrender | Using the loop to avoid thinking instead of to amplify it | You own the direction: the feature list, its order, and every `behavior` |
 | Token blowout | Context grows with each iteration | State on disk, the restore hook after compaction, and a context reset (`docs/cleanup.md`) before the window is 60% full |
 
