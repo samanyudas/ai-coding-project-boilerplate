@@ -125,7 +125,7 @@ Uncommitted work is staged and snapshotted with `git write-tree`, so the range i
 - `.github/pull_request_template.md`: Summary, Testing, Risk (with changed `high_stakes` paths), and How to revert.
 - `docs/architecture.json`: the gates themselves ship as `high_stakes` paths (CI workflows, the pre-commit hook, the gate scripts and their shared limits, agent settings and subagents, and `REVIEW.md`), so `scripts/review-change.sh` asks for a human read of any change to them.
 `docs/conventions.md` and `docs/initialization.md` say to keep those entries.
-- `docs/graph.md`: a Code review node between Check and Evaluate, its routing (an Important finding goes back through Implement and Check, and one after the third cycle discards the attempt and blocks the feature), and the reviewer under the fresh-context constraint.
+- `docs/graph.md`: a Code review node between Check and Evaluate, its routing (an Important finding goes back through Implement and Check, and one in the third cycle discards the attempt and blocks the feature), and the reviewer under the fresh-context constraint.
 - `docs/loops.md`: the goal contract runs Check, then the reviewer, then the evaluator, and every fix goes back to Check.
 An Important finding in the third review cycle blocks the feature, every reviewer run counts as a cycle, and the pull request follows the template.
 The comprehension-rot guard adds an explainer before changing an unfamiliar module.
@@ -149,7 +149,7 @@ Merging them would hand the evaluator the implementation, which breaks its indep
 
 Why the review cycle cap lives in prose and in the goal contract, not in a script:
 no script sees how many times a subagent was called.
-The cap is counted by the caller, and an Important finding after the third cycle ends in the same Block as three failed attempts, so a stuck loop always stops.
+The cap is counted by the caller, and an Important finding in the third cycle ends in the same Block as three failed attempts, so a stuck loop always stops.
 The graph, the goal contract, and `REVIEW.md` give that one outcome, because two routes for one condition let an agent pick the one that keeps going.
 
 Why the diff range is a snapshot tree instead of `HEAD` or new commits:
