@@ -45,7 +45,8 @@ Then list the findings, Important first.
 The author resolves it with a short reason, or records it as a `not_started` feature.
 - After the first cycle, review only the changes since the last review, as `.claude/agents/reviewer.md` describes.
 - Never report a finding again after the author fixed or answered it.
-- After three cycles that still have Important findings, stop patching and discard the attempt.
+- Every review run counts as a cycle, including one after an evaluator FAIL.
+- When the third cycle still has an Important finding, stop patching and discard the attempt (`AGENTS.md` hard constraint 4).
 In a loop, block the feature (`docs/loops.md`).
 In an interactive session, rethink the approach or ask a human.
 - When reviews raise the same issue twice, add a check for it (`docs/documentation.md`).

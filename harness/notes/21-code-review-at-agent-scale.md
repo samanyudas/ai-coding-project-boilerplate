@@ -127,9 +127,10 @@ Uncommitted work is staged and snapshotted with `git write-tree`, so the range i
 `docs/conventions.md` and `docs/initialization.md` say to keep those entries.
 - `docs/graph.md`: a Code review node between Check and Evaluate, its routing (an Important finding goes back through Implement and Check, and one after the third cycle discards the attempt and blocks the feature), and the reviewer under the fresh-context constraint.
 - `docs/loops.md`: the goal contract runs Check, then the reviewer, then the evaluator, and every fix goes back to Check.
-An Important finding after the third review cycle blocks the feature, and the pull request follows the template.
-- `.claude/agents/evaluator.md`: it runs after the reviewer returns CLEAN.
+An Important finding in the third review cycle blocks the feature, every reviewer run counts as a cycle, and the pull request follows the template.
 The comprehension-rot guard adds an explainer before changing an unfamiliar module.
+- `.claude/agents/evaluator.md`: it runs after the reviewer returns CLEAN.
+- `AGENTS.md` hard constraint 4: a failed attempt is discarded with `git add -A && git restore --staged --worktree .`, because review cycles stage the work and a plain `git restore` would keep the staged attempt for the next commit.
 - `docs/security.md`: an agent's approval never satisfies a required human approval, an approval covers one commit, and a Merge settings reference for branch protection, squash-only merges, and the merge queue.
 - `docs/harness-audit.md`: a "When a bad change merges" procedure (revert first, name the layer that should have caught it, add the check), an incident log that doubles as the reviewer's eval set, and the monthly revert count as a guardrail.
 - `AGENTS.md`: the repo map lists the review files, and the Definition of Done requires a fresh-context review with every Important finding fixed or answered.

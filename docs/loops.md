@@ -31,8 +31,9 @@ For each feature:
 7. If the evaluator returns FAIL, fix the failure, then go back to step 3.
 8. Record both reports in PROGRESS.md.
 9. Commit the verified feature.
-After three failed attempts with the same cause, or an Important finding after the third review cycle:
-1. Discard the attempt.
+Every reviewer run counts as a review cycle, including one after an evaluator FAIL.
+After three failed attempts with the same cause, or an Important finding in the third review cycle:
+1. Discard the attempt with `git add -A && git restore --staged --worktree .`.
 2. Run scripts/feature.sh block <id> "<reason>".
 3. Continue with the next feature.
 Never change the behavior or verify command of a passing feature.

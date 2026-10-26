@@ -35,7 +35,7 @@ Write anything that matters into a file here.
 2. Write code against the exact versions in Tech stack.
 3. Commit only through the pre-commit hook, with `scripts/verify.sh` passing.
 4. Commit each finished, verified unit immediately with its code, tests, docs, and updated state (`docs/features.json`, `PROGRESS.md`).
-Discard a failed attempt with `git restore` or by dropping its branch.
+Discard a failed attempt with `git add -A && git restore --staged --worktree .`, which also drops staged and new files, or drop its branch.
 5. WIP = 1 applies per agent.
 Each parallel agent takes a different, independent feature on its own branch in its own worktree.
 Merge only finished, verified work.

@@ -52,11 +52,11 @@ The thread id of a run is its branch name: one branch per loop run, so its commi
 | Check | A level or the flow fails | Implement, starting from the failing log | Retry |
 | Check | Everything passes | Code review | Sequential |
 | Code review | An Important finding, in cycle one or two | Implement, with the findings; the next cycle reviews only the new changes | Retry |
-| Code review | An Important finding after the third cycle | Discard the attempt (`git restore`), Block, then Pick | Rollback |
+| Code review | An Important finding in the third cycle | Discard the attempt (hard constraint 4), Block, then Pick | Rollback |
 | Code review | No Important finding | Evaluate | Sequential |
 | Evaluate | FAIL | Implement, with the verification report | Retry |
 | Evaluate | PASS | Commit, then Pick | Sequential |
-| Implement | Three attempts failed on the same cause, or the blocker is outside the code | Discard the attempt (`git restore`), Block, then Pick | Rollback |
+| Implement | Three attempts failed on the same cause, or the blocker is outside the code | Discard the attempt (hard constraint 4), Block, then Pick | Rollback |
 | Review | Rejected | Implement, on the same branch | Rollback |
 | Review | Approved | Merge into `main` | Sequential |
 
@@ -66,7 +66,7 @@ Pick can hand independent features to parallel Implement nodes, each on its own 
 
 1. **Which loops feed which?** Plan feeds the feature loop; the weekly cleanup (`docs/cleanup.md`) feeds Plan with `not_started` features.
 2. **Who owns the targets?** A human: each feature's `behavior`, `verify`, and `invariants`, and the limits in `scripts/lib/limits.sh`.
-3. **Who can veto or roll back?** The scripts veto every commit, the reviewer and the evaluator veto a feature, and the human vetoes the merge; any node rolls back a failed attempt with `git restore`.
+3. **Who can veto or roll back?** The scripts veto every commit, the reviewer and the evaluator veto a feature, and the human vetoes the merge; any node discards a failed attempt (hard constraint 4).
 4. **Which metrics may move, and which stay frozen?** The code and the count of passing features move. Passing contracts, the verification levels, and the limits stay frozen unless a human changes them, with a `DECISIONS.md` entry.
 
 ## Anchors

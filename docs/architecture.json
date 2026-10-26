@@ -11,6 +11,7 @@
     { "path": "scripts/lib/", "why": "Limits and run evidence the gates share, so a weakened limit relaxes every gate at once" },
     { "path": ".claude/settings.json", "why": "Agent hooks and permissions, so a weakened one lets agents skip checks" },
     { "path": ".claude/agents/", "why": "The reviewer and evaluator, so a weakened one lets agents judge their own work" },
+    { "path": "docs/architecture.json", "why": "The high-stakes list and architecture rules, so a removed entry silently turns off a gate" },
     { "path": "REVIEW.md", "why": "What the reviewer reports, so a deleted line lets a class of bug through every review" }
   ],
   "rules": []
